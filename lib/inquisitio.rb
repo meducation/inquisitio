@@ -2,6 +2,7 @@ require "inquisitio/version"
 require "inquisitio/inquisitio_error"
 require "inquisitio/logger"
 require "inquisitio/configuration"
+require "inquisitio/document"
 
 module Inquisitio
 
