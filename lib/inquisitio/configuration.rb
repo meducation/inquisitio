@@ -6,9 +6,7 @@ module Inquisitio
   class Configuration
 
     SETTINGS = [
-      :access_key, :secret_key, :queue_region,
-      :application_name,
-      :logger
+      :search_endpoint, :logger
     ]
     attr_writer *SETTINGS
 

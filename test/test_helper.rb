@@ -15,9 +15,7 @@ require "inquisitio"
 class Minitest::Test
   def setup
     Inquisitio.config do |config|
-      config.access_key = "test-access-key"
-      config.secret_key = "test-secret-key"
-      config.queue_region = "us-east-1"
+      config.search_endpoint = "test-search-endpoint"
 
       config.logger.stubs(:debug)
       config.logger.stubs(:error)
