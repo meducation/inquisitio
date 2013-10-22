@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require "inquisitio"
+
+# Perform a search against AWS CloudSearch
+#
+# example usage:
+#
+# ruby ./bin/search <enddpoint> "Star Wars" "title"
+
+endpoint = ARGV[0]
+query = ARGV[1]
+return_fields = [ ARGV[2] ]
+
+Inquisitio.config do |config|
+  config.search_endpoint = endpoint
+end
+
+puts Inquisitio.search(query, return_fields)

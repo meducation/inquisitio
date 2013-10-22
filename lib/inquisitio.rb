@@ -3,6 +3,7 @@ require "inquisitio/inquisitio_error"
 require "inquisitio/logger"
 require "inquisitio/configuration"
 require "inquisitio/document"
+require "inquisitio/searcher"
 
 module Inquisitio
 
@@ -28,6 +29,14 @@ module Inquisitio
     else
       @config
     end
+  end
+
+  # Perform a search.
+  #
+  # @param [String] query The search query.
+  # @param [Hash] return_fields The fields to be returned in the search results.
+  def self.search(query, return_fields)
+    Searcher.search(query, return_fields)
   end
 
 end

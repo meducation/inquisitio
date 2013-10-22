@@ -12,46 +12,22 @@ module Inquisitio
     end
 
     def test_block_syntax
-      test_key = "foobar-123-access"
+      test_search_endpoint = "foobar-123-endpoint"
       Inquisitio.config do |config|
-        config.access_key = test_key
+        config.search_endpoint = test_search_endpoint
       end
-      assert_equal test_key, Inquisitio.config.access_key
+      assert_equal test_search_endpoint, Inquisitio.config.search_endpoint
     end
 
-    def test_access_key
-      access_key = "test-access-key"
-      Inquisitio.config.access_key = access_key
-      assert_equal access_key, Inquisitio.config.access_key
+    def test_search_endpoint
+      search_endpoint = "test-search-endpoint"
+      Inquisitio.config.search_endpoint = search_endpoint
+      assert_equal search_endpoint, Inquisitio.config.search_endpoint
     end
 
-    def test_secret_key
-      secret_key = "test-secret-key"
-      Inquisitio.config.secret_key = secret_key
-      assert_equal secret_key, Inquisitio.config.secret_key
-    end
-
-    def test_queue_region
-      queue_region = "test-queue-region"
-      Inquisitio.config.queue_region = queue_region
-      assert_equal queue_region, Inquisitio.config.queue_region
-    end
-
-    def test_missing_access_key_throws_exception
+    def test_missing_search_endpoint_throws_exception
       assert_raises(InquisitioConfigurationError) do
-        Inquisitio.config.access_key
-      end
-    end
-
-    def test_missing_secret_key_throws_exception
-      assert_raises(InquisitioConfigurationError) do
-        Inquisitio.config.secret_key
-      end
-    end
-
-    def test_missing_queue_region_throws_exception
-      assert_raises(InquisitioConfigurationError) do
-        Inquisitio.config.queue_region
+        Inquisitio.config.search_endpoint
       end
     end
   end

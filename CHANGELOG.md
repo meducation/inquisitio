@@ -1,3 +1,7 @@
+0.0.3 / 2013-10-21
+
+[FEATURE] Added ability to perform search using Searcher class.
+
 0.0.2 / 2013-10-21
 
 [FEATURE] Added Document class representing AWS SDF document.
