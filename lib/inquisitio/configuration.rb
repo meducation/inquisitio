@@ -6,7 +6,9 @@ module Inquisitio
   class Configuration
 
     SETTINGS = [
-      :search_endpoint, :logger
+      :search_endpoint,
+      :document_endpoint,
+      :logger
     ]
     attr_writer *SETTINGS
 

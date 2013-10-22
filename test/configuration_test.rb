@@ -30,6 +30,18 @@ module Inquisitio
         Inquisitio.config.search_endpoint
       end
     end
+
+    def test_document_endpoint
+      document_endpoint = "test-document-endpoint"
+      Inquisitio.config.document_endpoint = document_endpoint
+      assert_equal document_endpoint, Inquisitio.config.document_endpoint
+    end
+
+    def test_missing_document_endpoint_throws_exception
+      assert_raises(InquisitioConfigurationError) do
+        Inquisitio.config.document_endpoint
+      end
+    end
   end
 end
 
