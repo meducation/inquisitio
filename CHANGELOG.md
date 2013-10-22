@@ -1,3 +1,7 @@
+0.0.4 / 2013-10-22
+
+[FEATURE] Return_fields is now optional in search call.
+
 0.0.3 / 2013-10-21
 
 [FEATURE] Added ability to perform search using Searcher class.

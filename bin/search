@@ -19,4 +19,8 @@ Inquisitio.config do |config|
   config.search_endpoint = endpoint
 end
 
-puts Inquisitio.search(query, return_fields)
+if return_fields.nil?
+  puts Inquisitio.search(query)
+else
+  puts Inquisitio.search(query, { "return_fields" => return_fields} )
+end
