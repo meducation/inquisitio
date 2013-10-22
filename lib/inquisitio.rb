@@ -34,9 +34,9 @@ module Inquisitio
   # Perform a search.
   #
   # @param [String] query The search query.
-  # @param [Hash] return_fields The fields to be returned in the search results.
-  def self.search(query, return_fields)
-    Searcher.search(query, return_fields)
+  # @param [Hash] options. Optionaly specify return_fields. The fields to be returned in the search results.
+  def self.search(query, options =  {})
+    Searcher.search(query, options)
   end
 
 end

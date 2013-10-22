@@ -3,21 +3,15 @@ require 'excon'
 module Inquisitio
   class Searcher
 
-    def self.search(query, return_fields)
-      new(query, return_fields).search
+    def self.search(query, options = {})
+      new(query, options).search
     end
 
-    def initialize(query, return_fields)
+    def initialize(query, options = {})
       raise InquisitioError.new("Query is null") if query.nil?
-      raise InquisitioError.new("Return Fields is null") if return_fields.nil?
 
       @query = URI::encode(query)
-      comma_separated_return_fields = ""
-      return_fields.each do |field|
-        comma_separated_return_fields = "#{comma_separated_return_fields},#{field}"
-      end
-      comma_separated_return_fields[0] = ''
-      @return_fields = URI::encode(comma_separated_return_fields)
+      @return_fields = options['return_fields']
     end
 
     def search
@@ -29,7 +23,18 @@ module Inquisitio
     private
 
     def search_url
-      "#{Inquisitio.config.search_endpoint}/2011-02-01/search?q=#{@query}&return-fields=#{@return_fields}"
+      "#{Inquisitio.config.search_endpoint}/2011-02-01/search?q=#{@query}#{return_fields_query_string}"
+    end
+
+    def return_fields_query_string
+      return "" if @return_fields.nil?
+
+      comma_separated_return_fields = ""
+      @return_fields.each do |field|
+        comma_separated_return_fields = "#{comma_separated_return_fields},#{field}"
+      end
+      comma_separated_return_fields[0] = ''
+      "&return-fields=#{URI::encode(comma_separated_return_fields)}"
     end
   end
 end
