@@ -4,6 +4,7 @@ require "inquisitio/logger"
 require "inquisitio/configuration"
 require "inquisitio/document"
 require "inquisitio/searcher"
+require "inquisitio/indexer"
 
 module Inquisitio
 
@@ -39,4 +40,10 @@ module Inquisitio
     Searcher.search(query, options)
   end
 
+  # Index a batch of documents.
+  #
+  # @param [Array] documents. A list of Documents to index.
+  def self.index(documents)
+    Indexer.index([documents])
+  end
 end

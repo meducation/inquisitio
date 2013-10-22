@@ -1,3 +1,4 @@
+require 'json'
 module Inquisitio
   class Document
 

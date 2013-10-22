@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require "inquisitio"
+
+# Index a spdf file in AWS CloudSearch
+#
+# example usage:
+#
+# ruby ./bin/index <document_endpoint> "id" "version" "field_name" "field_value"
+
+endpoint = ARGV[0]
+id = ARGV[1]
+
+version = Time.now.to_i
+
+Inquisitio.config do |config|
+  config.document_endpoint = endpoint
+end
+
+fields = { :title => 'The Title',
+           :author => 'The Author' }
+document = Inquisitio::Document.new("add",
+                                    id,
+                                    version,
+                                    fields)
+Inquisitio.index(document)

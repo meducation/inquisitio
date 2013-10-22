@@ -1,3 +1,7 @@
+0.0.5 / 2013-10-22
+
+[FEATURE] Initial indexer created.
+
 0.0.4 / 2013-10-22
 
 [FEATURE] Return_fields is now optional in search call.
