@@ -3,6 +3,7 @@ require "inquisitio/inquisitio_error"
 require "inquisitio/logger"
 require "inquisitio/configuration"
 require "inquisitio/document"
+require "inquisitio/search_url_builder"
 require "inquisitio/searcher"
 require "inquisitio/indexer"
 
