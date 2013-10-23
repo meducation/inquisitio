@@ -1,3 +1,7 @@
+0.0.6 / 2013-10-23
+
+[FEATURE] Changed version of excon
+
 0.0.5 / 2013-10-22
 
 [FEATURE] Initial indexer created.
