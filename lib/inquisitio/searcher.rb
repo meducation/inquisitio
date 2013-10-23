@@ -4,9 +4,12 @@ module Inquisitio
   class Searcher
 
     def self.search(*args)
-      new(*args).search
+      searcher = new(*args)
+      searcher.search
+      searcher
     end
 
+    attr_reader :results
     def initialize(query, filters = {})
       raise InquisitioError.new("Query is null") if query.nil?
 
@@ -24,7 +27,18 @@ module Inquisitio
     def search
       response = Excon.get(search_url)
       raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-      response.body
+      body = response.body
+      @results = JSON.parse(body)["hits"]["hit"]
+    end
+
+    def ids
+      @ids ||= @results.map{|result|result['id']}
+    end
+
+    def records
+      @records ||= @results.map do |result|
+        {result['type'] => result['id']}
+      end
     end
 
     private
