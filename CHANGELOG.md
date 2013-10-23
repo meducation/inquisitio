@@ -1,3 +1,7 @@
+0.0.7 / 2013-10-23
+
+[FEATURE] Extended searcher to handle boolean queries.
+
 0.0.6 / 2013-10-23
 
 [FEATURE] Changed version of excon
