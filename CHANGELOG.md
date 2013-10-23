@@ -1,3 +1,7 @@
+0.0.8 / 2013-10-23
+
+[FEATURE] Extended searcher to handle arguments (for example, facet arguments).
+
 0.0.7 / 2013-10-23
 
 [FEATURE] Extended searcher to handle boolean queries.
