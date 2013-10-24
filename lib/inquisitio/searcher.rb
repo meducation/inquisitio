@@ -10,18 +10,8 @@ module Inquisitio
     end
 
     attr_reader :results
-    def initialize(query, filters = {})
-      raise InquisitioError.new("Query is null") if query.nil?
+    def initialize
 
-      if query.is_a?(String)
-        @query = query
-        @filters = filters
-      else
-        @filters = query
-      end
-
-      @return_fields = @filters.delete(:return_fields)
-      @arguments = @filters.delete(:arguments)
     end
 
     def search
@@ -47,3 +37,19 @@ module Inquisitio
     end
   end
 end
+
+=begin
+    def initialize(query, filters = {})
+      raise InquisitioError.new("Query is null") if query.nil?
+
+      if query.is_a?(String)
+        @query = query
+        @filters = filters
+      else
+        @filters = query
+      end
+
+      @return_fields = @filters.delete(:return_fields)
+      @arguments = @filters.delete(:arguments)
+    end
+=end
