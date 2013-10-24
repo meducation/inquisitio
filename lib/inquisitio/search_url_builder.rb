@@ -27,9 +27,20 @@ module Inquisitio
     end
 
     def boolean_query
-      filters = @filters.map{|key,value| "#{key.to_s.gsub('\'','')}:'#{value.to_s.gsub('\'','')}'"}
+      filters = @filters.map do |key,value|
+        key = key.to_s.gsub('\'','')
+
+        if value.is_a?(String)
+          "#{key}:'#{value.to_s.gsub('\'','')}'"
+        elsif value.is_a?(Array)
+          mapping = value.map {|v| "#{key}:'#{v.to_s.gsub('\'','')}'" }.join(" ")
+          "(or #{mapping})"
+        else
+          raise InquisitioError.new("Filter values must be strings or arrays.")
+        end
+      end
       queries = filters.join(" ")
-      queries = "'#{@query.gsub('\'','')}' #{queries}" if @query
+      queries = "'#{@query.to_s.gsub('\'','')}' #{queries}" if @query
       "bq=#{URI.encode("(and #{queries})")}"
     end
 
