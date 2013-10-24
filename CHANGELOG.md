@@ -1,3 +1,8 @@
+0.0.11 / Unreleased
+
+[FEATURE] Searcher now has default size read from configuration.
+[FEATURE] Searcher now performs simple sanatization of search queries.
+
 0.0.9 / Unreleased
 
 [FEATURE] Searcher now has id, records and results.
