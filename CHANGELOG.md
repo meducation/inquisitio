@@ -1,4 +1,8 @@
-0.0.11 / Unreleased
+0.0.12 / 2013-10-24
+
+[FEATURE] Allow filter values to be arrays.
+
+0.0.12 / 2013-10-24
 
 [FEATURE] Searcher now has default size read from configuration.
 [FEATURE] Searcher now performs simple sanatization of search queries.

@@ -63,5 +63,15 @@ module Inquisitio
       assert_equal expected_url, url
     end
 
+    def test_create_search_url_with_filter_array
+      url = SearchUrlBuilder.build(query: 'Star Wars', filters: {genre: ['Animation', 'Action']})
+      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20\'Star%20Wars\'%20(or%20genre:\'Animation\'%20genre:\'Action\'))&size=10'
+      assert_equal expected_url, url
+    end
+    def test_throws_exception_when_using_unsupported_filter_value_type
+      assert_raises(InquisitioError) do
+        SearchUrlBuilder.build(query: 'Star Wars', filters: {genre: {}})
+      end
+    end
   end
 end
