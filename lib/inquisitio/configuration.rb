@@ -8,6 +8,7 @@ module Inquisitio
     SETTINGS = [
       :search_endpoint,
       :document_endpoint,
+      :default_search_size,
       :logger
     ]
     attr_writer *SETTINGS

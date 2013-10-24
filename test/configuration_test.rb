@@ -42,6 +42,18 @@ module Inquisitio
         Inquisitio.config.document_endpoint
       end
     end
+
+    def test_default_search_size
+      default_search_size = "test-default_search_size"
+      Inquisitio.config.default_search_size = default_search_size
+      assert_equal default_search_size, Inquisitio.config.default_search_size
+    end
+
+    def test_missing_default_search_size_throws_exception
+      assert_raises(InquisitioConfigurationError) do
+        Inquisitio.config.default_search_size
+      end
+    end
   end
 end
 
