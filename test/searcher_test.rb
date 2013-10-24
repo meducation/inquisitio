@@ -81,43 +81,10 @@ module Inquisitio
       assert_equal records, searcher.records
     end
 
-########################
-## URL CHECKING STUFF ##
-########################
-
-    def test_create_correct_search_url_without_return_fields
+    def test_search_calls_search_url_builder
+      SearchUrlBuilder.any_instance.expects(build: "http://www.example.com")
       searcher = Searcher.new('Star Wars')
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars'
-      assert_equal expected_url, searcher.send(:search_url)
-    end
-
-    def test_create_correct_search_url_including_return_fields
-      searcher = Searcher.new('Star Wars', { :return_fields => [ 'title', 'year', '%' ] } )
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&return-fields=title,year,%25'
-      assert_equal expected_url, searcher.send(:search_url)
-    end
-    def test_create_boolean_query_search_url_with_only_filters
-      searcher = Searcher.new(title: 'Star Wars')
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20title:\'Star%20Wars\')'
-      assert_equal expected_url, searcher.send(:search_url)
-    end
-
-    def test_create_boolean_query_search_url_with_query_and_filters
-      searcher = Searcher.new('Star Wars', genre: 'Animation')
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20\'Star%20Wars\'%20genre:\'Animation\')'
-      assert_equal expected_url, searcher.send(:search_url)
-    end
-
-    def test_create_boolean_query_search_url_with_query_and_filters_and_return_fields
-      searcher = Searcher.new('Star Wars', {genre: 'Animation', :return_fields => [ 'title', 'year', '%' ] } )
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20\'Star%20Wars\'%20genre:\'Animation\')&return-fields=title,year,%25'
-      assert_equal expected_url, searcher.send(:search_url)
-    end
-
-    def test_create_search_url_with_added_arguments
-      searcher = Searcher.new('Star Wars', {genre: 'Animation', :arguments => { facet: 'genre', 'facet-genre-constraints' => 'Animation', 'facet-genre-top-n' => '5'} } )
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20\'Star%20Wars\'%20genre:\'Animation\')&facet=genre&facet-genre-constraints=Animation&facet-genre-top-n=5'
-      assert_equal expected_url, searcher.send(:search_url)
+      searcher.search
     end
   end
 end

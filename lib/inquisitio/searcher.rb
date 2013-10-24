@@ -42,40 +42,8 @@ module Inquisitio
     end
 
     private
-
     def search_url
-      if @filters.empty?
-        simple_search_url
-      else
-        boolean_search_url
-      end
-    end
-
-    def simple_search_url
-      "#{Inquisitio.config.search_endpoint}/2011-02-01/search?q=#{URI.encode(@query)}#{return_fields_query_string}#{arguments}"
-    end
-
-    def boolean_search_url
-      filters = @filters.map{|key,value| "#{key}:'#{value}'"}
-      if @query.nil?
-        queries = filters.join(" ")
-      else
-        queries = ["'#{@query}'"].concat(filters).compact.join(" ")
-      end
-
-      query_string = "and #{queries}"
-      boolean_query = URI.encode("(#{query_string})")
-      "#{Inquisitio.config.search_endpoint}/2011-02-01/search?bq=#{boolean_query}#{return_fields_query_string}#{arguments}"
-    end
-
-    def return_fields_query_string
-      return "" if @return_fields.nil?
-      "&return-fields=#{URI::encode(@return_fields.join(','))}"
-    end
-
-    def arguments
-      return "" if @arguments.nil?
-      @arguments.map{|key,value| "&#{key}=#{value}"}.join("")
+      @search_url ||= SearchUrlBuilder.build(query: @query, filters: @filters, arguments: @arguments, return_fields: @return_fields)
     end
   end
 end

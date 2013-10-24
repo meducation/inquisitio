@@ -1,6 +1,7 @@
 0.0.9 / Unreleased
 
 [FEATURE] Searcher now has id, records and results.
+[FEATURE] Refactor SearchUrlBuilder out of Searcher.
 
 0.0.8 / 2013-10-23
 
