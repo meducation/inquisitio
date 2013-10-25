@@ -26,16 +26,16 @@ module Inquisitio
     def test_where_sets_variable
       criteria = 'Star Wars'
       searcher = Searcher.where(criteria)
-      assert_equal [criteria], searcher.instance_variable_get("@criteria")
+      assert_equal [criteria], searcher.params[:criteria]
     end
-        
+
     def test_where_doesnt_mutate_searcher
       initial_criteria = 'star wars'
       searcher = Searcher.where(initial_criteria)
       searcher.where('Return of the Jedi')
-      assert_equal [initial_criteria], searcher.instance_variable_get("@criteria")
+      assert_equal [initial_criteria], searcher.params[:criteria]
     end
-    
+
     def test_where_returns_a_new_searcher
       searcher1 = Searcher.where('star wars')
       searcher2 = searcher1.where('star wars')
@@ -45,27 +45,39 @@ module Inquisitio
     def test_where_sets_filters
       filters = {genre: 'Animation'}
       searcher = Searcher.where(filters)
-      assert_equal filters, searcher.instance_variable_get("@filters")
+      assert_equal({genre: ['Animation']}, searcher.params[:filters])
     end
 
     def test_where_merges_filters
       filters1 = {genre: 'Animation'}
-      filters2 = {genre: 'Animation'}
+      filters2 = {foobar: 'Cat'}
       searcher = Searcher.where(filters1).where(filters2)
-      assert_equal filters1.merge(filters2), searcher.instance_variable_get("@filters")
+      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:filters])
     end
-    
+
+    def test_where_merges_filters_with_same_key
+      filters1 = {genre: 'Animation'}
+      filters2 = {genre: 'Action'}
+      searcher = Searcher.where(filters1).where(filters2)
+      assert_equal({genre: ["Animation", "Action"]}, searcher.params[:filters])
+    end
+
     def test_where_gets_correct_url
       searcher = Searcher.where('Star Wars')
       assert searcher.send(:search_url).include? "q=Star%20Wars"
     end
-    
+
+    def test_where_gets_correct_url_with_filters
+      searcher = Searcher.where(title: 'Star Wars')
+      assert searcher.send(:search_url).include? "bq=(and%20(or%20title:'Star%20Wars'))"
+    end
+
     def test_per_doesnt_mutate_searcher
       searcher = Searcher.per(10)
       searcher.per(15)
-      assert_equal 10, searcher.instance_variable_get("@per")
+      assert_equal 10, searcher.params[:per]
     end
-    
+
     def test_per_returns_a_new_searcher
       searcher1 = Searcher.where('star wars')
       searcher2 = searcher1.where('star wars')
@@ -74,20 +86,20 @@ module Inquisitio
 
     def test_per_sets_variable
       searcher = Searcher.per(15)
-      assert_equal 15, searcher.instance_variable_get("@per")
+      assert_equal 15, searcher.params[:per]
     end
 
     def test_per_gets_correct_url
       searcher = Searcher.per(15)
       assert searcher.send(:search_url).include? "&size=15"
     end
-    
+
     def test_page_doesnt_mutate_searcher
       searcher = Searcher.page(1)
       searcher.page(2)
-      assert_equal 1, searcher.instance_variable_get("@page")
+      assert_equal 1, searcher.params[:page]
     end
-    
+
     def test_page_returns_a_new_searcher
       searcher1 = Searcher.page(1)
       searcher2 = searcher1.page(2)
@@ -96,7 +108,7 @@ module Inquisitio
 
     def test_page_sets_variable
       searcher = Searcher.page(3)
-      assert_equal 3, searcher.instance_variable_get("@page")
+      assert_equal 3, searcher.params[:page]
     end
 
     def test_page_gets_correct_url
@@ -104,9 +116,21 @@ module Inquisitio
       assert searcher.send(:search_url).include? "&offset=45"
     end
 
+    def test_returns_doesnt_mutate_searcher
+      searcher = Searcher.returns(1)
+      searcher.returns(2)
+      assert_equal [1], searcher.params[:returns]
+    end
+
+    def test_returns_returns_a_new_searcher
+      searcher1 = Searcher.returns(1)
+      searcher2 = searcher1.returns(2)
+      refute_same searcher1, searcher2
+    end
+
     def test_returns_sets_variable
       searcher = Searcher.returns('med_id')
-      assert_equal ['med_id'], searcher.instance_variable_get("@returns")
+      assert_equal ['med_id'], searcher.params[:returns]
     end
 
     def test_returns_gets_correct_urlns_appends_variable
@@ -116,7 +140,7 @@ module Inquisitio
 
     def test_returns_with_array_sets_variable
       searcher = Searcher.returns('med_id', 'foobar')
-      assert_equal ['med_id', 'foobar'], searcher.instance_variable_get("@returns")
+      assert_equal ['med_id', 'foobar'], searcher.params[:returns]
     end
 
     def test_returns_with_array_gets_correct_url
@@ -126,17 +150,17 @@ module Inquisitio
 
     def test_returns_appends_variable
       searcher = Searcher.returns('med_id').returns('foobar')
-      assert_equal ['med_id', 'foobar'], searcher.instance_variable_get("@returns")
+      assert_equal ['med_id', 'foobar'], searcher.params[:returns]
     end
 
     def test_with_saves_variable
       searcher = Searcher.with(foo: 'bar')
-      assert_equal({foo:'bar'}, searcher.instance_variable_get("@_with"))
+      assert_equal({foo:'bar'}, searcher.params[:with])
     end
 
     def test_with_appends_to_variable
       searcher = Searcher.with(foo: 'bar').with(cat: 'dog')
-      assert_equal({foo:'bar', cat:'dog'}, searcher.instance_variable_get("@_with"))
+      assert_equal({foo:'bar', cat:'dog'}, searcher.params[:with])
     end
 
     def test_with_gets_correct_url
