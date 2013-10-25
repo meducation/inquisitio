@@ -41,13 +41,15 @@ module Inquisitio
 
     def where(value)
       clone do |s|
-        if value.is_a?(String)
-          s.params[:criteria] << value
+        if value.is_a?(Array)
+          s.params[:criteria] += value
         elsif value.is_a?(Hash)
           value.each do |k,v|
             s.params[:filters][k] ||= []
             s.params[:filters][k] << v
           end
+        else
+          s.params[:criteria] << value
         end
       end
     end
@@ -67,7 +69,7 @@ module Inquisitio
     def returns(*value)
       clone do |s|
         if value.is_a?(Array)
-          value.each {|f| s.params[:returns] << f}
+          s.params[:returns] += value
         else
           s.params[:returns] << value
         end

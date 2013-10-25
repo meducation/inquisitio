@@ -29,6 +29,12 @@ module Inquisitio
       assert_equal [criteria], searcher.params[:criteria]
     end
 
+    def test_where_sets_variable_with_an_array
+      criteria = ['Star', 'Wars']
+      searcher = Searcher.where(criteria)
+      assert_equal criteria, searcher.params[:criteria]
+    end
+
     def test_where_doesnt_mutate_searcher
       initial_criteria = 'star wars'
       searcher = Searcher.where(initial_criteria)
