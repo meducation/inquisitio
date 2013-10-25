@@ -1,6 +1,10 @@
 # Inquisitio
 
-TODO: Write a gem description
+[![Build Status](https://travis-ci.org/meducation/inquisitio.png)](https://travis-ci.org/meducation/inquisitio)
+[![Dependencies](https://gemnasium.com/meducation/inquisitio.png?travis)](https://gemnasium.com/meducation/inquisitio)
+[![Code Climate](https://codeclimate.com/github/meducation/inquisitio.png)](https://codeclimate.com/github/meducation/inquisitio)
+
+Inquisitio is a ruby wrapper around Amazon Cloud Search. It is currently under active development.
 
 ## Installation
 
@@ -12,22 +16,15 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install inquisitio
-
 ## Usage
 
 TODO: Write usage instructions here
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+Firstly, thank you!! :heart::sparkling_heart::heart:
 
+We'd love to have you involved. Please read our [contributing guide](https://github.com/meducation/inquisitio/tree/master/CONTRIBUTING.md) for information on how to get stuck in.
 
  ### Contributors
 
@@ -51,5 +48,5 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
-A copy of the GNU Affero General Public License is available in [Licence.md](https://github.com/meducation/propono/blob/master/LICENCE.md)
+A copy of the GNU Affero General Public License is available in [Licence.md](https://github.com/meducation/inquisitio/blob/master/LICENCE.md)
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
