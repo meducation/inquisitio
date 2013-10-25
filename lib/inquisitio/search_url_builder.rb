@@ -28,9 +28,9 @@ module Inquisitio
     end
 
     def boolean_query
-      
+
       query_blocks = []
-      
+
       if Array(@query).empty?
 #        query_blocks = []
       elsif @query.size == 1
@@ -38,7 +38,7 @@ module Inquisitio
       else
         query_blocks << "(or #{@query.map{|q| "'#{sanitise(q)}'"}.join(' ')})"
       end
-       
+
       query_blocks += @filters.map do |key,value|
         if value.is_a?(String)
           "#{sanitise(key)}:'#{sanitise(value)}'"
@@ -47,15 +47,15 @@ module Inquisitio
         else
           raise InquisitioError.new("Filter values must be strings or arrays.")
         end
-      end       
-      
+      end
+
       "bq=#{URI.encode("(and #{query_blocks.join(' ')})")}"
     end
-    
+
     def sanitise(value)
       value.to_s.gsub('\'','');
     end
-    
+
     def return_fields_query_string
       return "" if @return_fields.nil?
       "&return-fields=#{URI::encode(@return_fields.join(',').gsub('\'',''))}"

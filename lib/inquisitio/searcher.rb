@@ -8,11 +8,11 @@ module Inquisitio
       Searcher.new.send(name, *args)
     end
 
-    attr_reader :params, :results
+    attr_reader :params
     def initialize(params = nil)
       @params = params || {
-        criteria: [], 
-        filters: {}, 
+        criteria: [],
+        filters: {},
         per: 10,
         page: 1,
         returns: [],
@@ -23,23 +23,20 @@ module Inquisitio
     end
 
     def search
-      if @results.nil?
-        response = Excon.get(search_url)
-        raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-        @results = JSON.parse(response.body)["hits"]["hit"]
-      end
-      self
+      results
     end
 
+=begin
     def ids
-      @ids ||= @results.map{|result|result['id']}
+      @ids ||= to_a.map{|result|result['id']}
     end
 
     def records
-      @records ||= @results.map do |result|
+      @records ||= to_a.map do |result|
         {result['type'] => result['id']}
       end
     end
+=end
 
     def where(value)
       clone do |s|
@@ -48,7 +45,11 @@ module Inquisitio
         elsif value.is_a?(Hash)
           value.each do |k,v|
             s.params[:filters][k] ||= []
-            s.params[:filters][k] << v
+            if v.is_a?(Array)
+              s.params[:filters][k] = v
+            else
+              s.params[:filters][k] << v
+            end
           end
         else
           s.params[:criteria] << value
@@ -58,13 +59,13 @@ module Inquisitio
 
     def per(value)
       clone do |s|
-        s.params[:per] = value
+        s.params[:per] = value.to_i
       end
     end
 
     def page(value)
       clone do |s|
-        s.params[:page] = value
+        s.params[:page] = value.to_i
       end
     end
 
@@ -87,19 +88,28 @@ module Inquisitio
     # Proxy everything to the results so that this this class
     # transparently acts as an Array.
     def method_missing(name, *args, &block)
-      self.search.results.send(name, *args, &block)
+      results.to_a.send(name, *args, &block)
     end
 
     private
 
+    def results
+      if @results.nil?
+        response = Excon.get(search_url)
+        raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
+        @results = JSON.parse(response.body)["hits"]["hit"]
+      end
+      @results
+    end
+
     def search_url
       @search_url ||= SearchUrlBuilder.build(
-        query: params[:criteria], 
-        filters: params[:filters], 
+        query: params[:criteria],
+        filters: params[:filters],
         arguments: params[:with].merge({
-          size: params[:per], 
-          offset: params[:per] * params[:page]
-        }), 
+          size: params[:per],
+          start: params[:per] * params[:page]
+        }),
         return_fields: params[:returns]
       )
     end

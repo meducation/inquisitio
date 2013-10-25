@@ -14,7 +14,7 @@ module Inquisitio
       expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&size=10'
       assert_equal expected_url, url
     end
-    
+
     def test_create_correct_search_url_with_multiple_criteria_should_create_boolean_query
       url = SearchUrlBuilder.build(query: ['Star Wars', 'Episode One'])
       expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20(or%20\'Star%20Wars\'%20\'Episode%20One\'))&size=10'
@@ -69,15 +69,15 @@ module Inquisitio
       assert_equal expected_url, url
     end
 
-    def test_create_search_url_with_offset_and_default_size
-      url = SearchUrlBuilder.build(query: ['Star Wars'], :arguments => { offset: '20' })
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&offset=20&size=10'
+    def test_create_search_url_with_start_and_default_size
+      url = SearchUrlBuilder.build(query: ['Star Wars'], :arguments => { start: '20' })
+      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&start=20&size=10'
       assert_equal expected_url, url
     end
-    
-    def test_create_search_url_with_offset_and_size
-      url = SearchUrlBuilder.build(query: ['Star Wars'], :arguments => { offset: '2', size: '200' })
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&offset=2&size=200'
+
+    def test_create_search_url_with_start_and_size
+      url = SearchUrlBuilder.build(query: ['Star Wars'], :arguments => { start: '2', size: '200' })
+      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&start=2&size=200'
       assert_equal expected_url, url
     end
 
@@ -92,6 +92,7 @@ module Inquisitio
       expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20\'Star%20Wars\'%20(or%20genre:\'Animation\'%20genre:\'Action\'))&size=10'
       assert_equal expected_url, url
     end
+
     def test_throws_exception_when_using_unsupported_filter_value_type
       assert_raises(InquisitioError) do
         SearchUrlBuilder.build(query: ['Star Wars'], filters: {genre: {}})

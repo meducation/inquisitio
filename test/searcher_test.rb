@@ -78,6 +78,20 @@ module Inquisitio
       assert searcher.send(:search_url).include? "bq=(and%20(or%20title:'Star%20Wars'))"
     end
 
+    def test_where_works_with_array_in_a_hash
+      criteria = {thing: ['foo', 'bar']}
+      searcher = Searcher.where(criteria)
+      assert_equal criteria, searcher.params[:filters]
+    end
+
+    def test_where_works_with_string_and_array
+      str_criteria = 'Star Wars'
+      hash_criteria = {thing: ['foo', 'bar']}
+      searcher = Searcher.where(str_criteria).where(hash_criteria)
+      assert_equal hash_criteria, searcher.params[:filters]
+      assert_equal [str_criteria], searcher.params[:criteria]
+    end
+
     def test_per_doesnt_mutate_searcher
       searcher = Searcher.per(10)
       searcher.per(15)
@@ -92,6 +106,11 @@ module Inquisitio
 
     def test_per_sets_variable
       searcher = Searcher.per(15)
+      assert_equal 15, searcher.params[:per]
+    end
+
+    def test_per_parses_a_string
+      searcher = Searcher.per("15")
       assert_equal 15, searcher.params[:per]
     end
 
@@ -117,9 +136,14 @@ module Inquisitio
       assert_equal 3, searcher.params[:page]
     end
 
+    def test_page_parses_a_string
+      searcher = Searcher.page("15")
+      assert_equal 15, searcher.params[:page]
+    end
+
     def test_page_gets_correct_url
       searcher = Searcher.page(3).per(15)
-      assert searcher.send(:search_url).include? "&offset=45"
+      assert searcher.send(:search_url).include? "&start=45"
     end
 
     def test_returns_doesnt_mutate_searcher
@@ -190,9 +214,8 @@ module Inquisitio
       end
     end
 
-    def test_that_iterating_calls_search
+    def test_that_iterating_calls_results
       searcher = Searcher.where("star_wars")
-      searcher.expects(search: searcher)
       searcher.expects(results: [])
       searcher.each { }
     end
@@ -200,11 +223,18 @@ module Inquisitio
     def test_that_iterating_calls_each
       searcher = Searcher.where("star_wars")
       searcher.search
-      searcher.results.expects(:each)
+      searcher.send(:results).expects(:each)
       searcher.each { }
     end
 
-    def test_search_should_set_results
+    def test_that_select_calls_each
+      searcher = Searcher.where("star_wars")
+      searcher.search
+      searcher.send(:results).expects(:select)
+      searcher.select { }
+    end
+
+    def test_search_should_results
       searcher = Searcher.where("star_wars")
       searcher.search
       assert_equal @expected_results, searcher.instance_variable_get("@results")
