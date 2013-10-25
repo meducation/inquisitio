@@ -23,6 +23,150 @@ module Inquisitio
       Excon.stubs.clear
     end
 
+    def test_where_sets_variable
+      criteria = 'Star Wars'
+      searcher = Searcher.where(criteria)
+      assert_equal [criteria], searcher.instance_variable_get("@criteria")
+    end
+        
+    def test_where_doesnt_mutate_searcher
+      initial_criteria = 'star wars'
+      searcher = Searcher.where(initial_criteria)
+      searcher.where('Return of the Jedi')
+      assert_equal [initial_criteria], searcher.instance_variable_get("@criteria")
+    end
+    
+    def test_where_returns_a_new_searcher
+      searcher1 = Searcher.where('star wars')
+      searcher2 = searcher1.where('star wars')
+      refute_same searcher1, searcher2
+    end
+
+    def test_where_sets_filters
+      filters = {genre: 'Animation'}
+      searcher = Searcher.where(filters)
+      assert_equal filters, searcher.instance_variable_get("@filters")
+    end
+
+    def test_where_merges_filters
+      filters1 = {genre: 'Animation'}
+      filters2 = {genre: 'Animation'}
+      searcher = Searcher.where(filters1).where(filters2)
+      assert_equal filters1.merge(filters2), searcher.instance_variable_get("@filters")
+    end
+    
+    def test_where_gets_correct_url
+      searcher = Searcher.where('Star Wars')
+      assert searcher.send(:search_url).include? "q=Star%20Wars"
+    end
+    
+    def test_per_doesnt_mutate_searcher
+      searcher = Searcher.per(10)
+      searcher.per(15)
+      assert_equal 10, searcher.instance_variable_get("@per")
+    end
+    
+    def test_per_returns_a_new_searcher
+      searcher1 = Searcher.where('star wars')
+      searcher2 = searcher1.where('star wars')
+      refute_same searcher1, searcher2
+    end
+
+    def test_per_sets_variable
+      searcher = Searcher.per(15)
+      assert_equal 15, searcher.instance_variable_get("@per")
+    end
+
+    def test_per_gets_correct_url
+      searcher = Searcher.per(15)
+      assert searcher.send(:search_url).include? "&size=15"
+    end
+    
+    def test_page_doesnt_mutate_searcher
+      searcher = Searcher.page(1)
+      searcher.page(2)
+      assert_equal 1, searcher.instance_variable_get("@page")
+    end
+    
+    def test_page_returns_a_new_searcher
+      searcher1 = Searcher.page(1)
+      searcher2 = searcher1.page(2)
+      refute_same searcher1, searcher2
+    end
+
+    def test_page_sets_variable
+      searcher = Searcher.page(3)
+      assert_equal 3, searcher.instance_variable_get("@page")
+    end
+
+    def test_page_gets_correct_url
+      searcher = Searcher.page(3).per(15)
+      assert searcher.send(:search_url).include? "&offset=45"
+    end
+
+    def test_returns_sets_variable
+      searcher = Searcher.returns('med_id')
+      assert_equal ['med_id'], searcher.instance_variable_get("@returns")
+    end
+
+    def test_returns_gets_correct_urlns_appends_variable
+      searcher = Searcher.returns('med_id')
+      assert searcher.send(:search_url).include? "&return-fields=med_id"
+    end
+
+    def test_returns_with_array_sets_variable
+      searcher = Searcher.returns('med_id', 'foobar')
+      assert_equal ['med_id', 'foobar'], searcher.instance_variable_get("@returns")
+    end
+
+    def test_returns_with_array_gets_correct_url
+      searcher = Searcher.returns('med_id', 'foobar')
+      assert searcher.send(:search_url).include? "&return-fields=med_id,foobar"
+    end
+
+    def test_returns_appends_variable
+      searcher = Searcher.returns('med_id').returns('foobar')
+      assert_equal ['med_id', 'foobar'], searcher.instance_variable_get("@returns")
+    end
+
+    def test_with_saves_variable
+      searcher = Searcher.with(foo: 'bar')
+      assert_equal({foo:'bar'}, searcher.instance_variable_get("@_with"))
+    end
+
+    def test_with_appends_to_variable
+      searcher = Searcher.with(foo: 'bar').with(cat: 'dog')
+      assert_equal({foo:'bar', cat:'dog'}, searcher.instance_variable_get("@_with"))
+    end
+
+    def test_with_gets_correct_url
+      searcher = Searcher.with(foo: 'bar').with(cat: 'dog')
+      assert searcher.send(:search_url).include? "&foo=bar&cat=dog"
+    end
+
+    def test_search_calls_search_url_builder
+      SearchUrlBuilder.any_instance.expects(build: "http://www.example.com")
+      searcher = Searcher.where('Star Wars')
+      searcher.search
+    end
+
+    def test_search_raises_exception_when_response_not_200
+      Excon.stub({}, {:body => 'Bad Happened', :status => 500})
+
+      searcher = Searcher.where('Star Wars')
+
+      assert_raises(InquisitioError, "Search failed with status code 500") do
+        searcher.search
+      end
+    end
+
+    def test_search_should_set_results
+      searcher = Searcher.where("star_wars")
+      searcher.search
+      assert_equal @expected_results, searcher.instance_variable_get("@results")
+    end
+
+=begin
     def test_initialization_with_string
       filters = { :genre => [ 'Animation' ] }
       return_fields = [ 'title' ]
@@ -47,23 +191,6 @@ module Inquisitio
       end
     end
 
-
-    def test_search_raises_exception_when_response_not_200
-      Excon.stub({}, {:body => 'Bad Happened', :status => 500})
-
-      searcher = Searcher.new('Star Wars')
-
-      assert_raises(InquisitioError, "Search failed with status code 500") do
-        searcher.search
-      end
-    end
-
-    def test_search_should_set_results
-      searcher = Searcher.new('Star Wars', { :return_fields => [ 'title', 'year', '%' ] } )
-      searcher.search
-      assert_equal @expected_results, searcher.instance_variable_get("@results")
-    end
-
     def test_search_should_set_ids
       searcher = Searcher.new('Star Wars', { :return_fields => [ 'title', 'year', '%' ] } )
       searcher.search
@@ -80,11 +207,7 @@ module Inquisitio
       records << {@expected_result_2['type'] => @expected_result_2['id']}
       assert_equal records, searcher.records
     end
-
-    def test_search_calls_search_url_builder
-      SearchUrlBuilder.any_instance.expects(build: "http://www.example.com")
-      searcher = Searcher.new('Star Wars')
-      searcher.search
-    end
+  end
+=end
   end
 end
