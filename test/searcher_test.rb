@@ -10,12 +10,12 @@ module Inquisitio
       @expected_result_2 = {'id' => 2, 'title' => "Foobar2", 'type' => "dog"}
       @expected_results = [@expected_result_1, @expected_result_2]
 
-      body = <<-EOS
+      @body = <<-EOS
       {"rank":"-text_relevance","match-expr":"(label 'star wars')","hits":{"found":2,"start":0,"hit":#{@expected_results.to_json}},"info":{"rid":"9d3b24b0e3399866dd8d376a7b1e0f6e930d55830b33a474bfac11146e9ca1b3b8adf0141a93ecee","time-ms":3,"cpu-time-ms":0}}
       EOS
 
       Excon.defaults[:mock] = true
-      Excon.stub({}, {body: body, status: 200})
+      Excon.stub({}, {body: @body, status: 200})
     end
 
     def teardown
@@ -190,10 +190,30 @@ module Inquisitio
       end
     end
 
+    def test_that_iterating_calls_search
+      searcher = Searcher.where("star_wars")
+      searcher.expects(search: searcher)
+      searcher.expects(results: [])
+      searcher.each { }
+    end
+
+    def test_that_iterating_calls_each
+      searcher = Searcher.where("star_wars")
+      searcher.search
+      searcher.results.expects(:each)
+      searcher.each { }
+    end
+
     def test_search_should_set_results
       searcher = Searcher.where("star_wars")
       searcher.search
       assert_equal @expected_results, searcher.instance_variable_get("@results")
+    end
+
+    def test_search_only_runs_once
+      searcher = Searcher.where("star_wars")
+      Excon.expects(:get).returns(mock(status: 200, body: @body)).once
+      2.times { searcher.search }
     end
 
 =begin

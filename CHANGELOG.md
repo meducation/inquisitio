@@ -1,5 +1,6 @@
 0.0.13 / Unreleased
 
+[FEATURE] Allow for Array-style method iteration
 [FEATURE] Changed syntax to match ActiveRecord style.
 
 0.0.12 / 2013-10-24

@@ -23,10 +23,12 @@ module Inquisitio
     end
 
     def search
-      response = Excon.get(search_url)
-      raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-      body = response.body
-      @results = JSON.parse(body)["hits"]["hit"]
+      if @results.nil?
+        response = Excon.get(search_url)
+        raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
+        @results = JSON.parse(response.body)["hits"]["hit"]
+      end
+      self
     end
 
     def ids
@@ -80,6 +82,12 @@ module Inquisitio
       clone do |s|
         s.params[:with].merge!(value)
       end
+    end
+
+    # Proxy everything to the results so that this this class
+    # transparently acts as an Array.
+    def method_missing(name, *args, &block)
+      self.search.results.send(name, *args, &block)
     end
 
     private

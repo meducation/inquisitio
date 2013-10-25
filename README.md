@@ -18,7 +18,14 @@ And then execute:
 
 ## Usage
 
-TODO: Write usage instructions here
+This gem allows you to build and execute queries to run against Amazon Cloud Search.
+
+```
+results = Inquisitio.where("foobar").per(10).page(2).with(facet: 'thingy')
+results.each do |result|
+  # ...
+end
+```
 
 ## Contributing
 
