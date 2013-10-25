@@ -33,7 +33,7 @@ Firstly, thank you!! :heart::sparkling_heart::heart:
 
 We'd love to have you involved. Please read our [contributing guide](https://github.com/meducation/inquisitio/tree/master/CONTRIBUTING.md) for information on how to get stuck in.
 
- ### Contributors
+### Contributors
 
 This project is managed by the [Meducation team](http://company.meducation.net/about#team). 
 
