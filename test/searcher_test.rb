@@ -274,14 +274,5 @@ module Inquisitio
       searcher.instance_variable_set("@results", [])
       assert_equal [res1, res2, res3], Searcher.records
     end
-
-=begin
-    def test_searcher_should_raise_exception_if_query_null
-      assert_raises(InquisitioError, "Query is nil") do
-        Searcher.search(nil)
-      end
-    end
-
-=end
   end
 end

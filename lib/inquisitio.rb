@@ -1,6 +1,8 @@
 require "inquisitio/version"
 require "inquisitio/inquisitio_error"
 require "inquisitio/logger"
+require "inquisitio/active_support"
+
 require "inquisitio/configuration"
 require "inquisitio/document"
 require "inquisitio/search_url_builder"

@@ -40,7 +40,7 @@ module Inquisitio
         end
 
         klasses.map {|klass, ids|
-          constantize(klass).where(id: ids)
+          klass.constantize.where(id: ids)
         }.flatten
       end
     end
@@ -128,32 +128,6 @@ module Inquisitio
     def clone
       Searcher.new(DeepClone.clone(params)) do |s|
         yield(s) if block_given?
-      end
-    end
-
-    def constantize(camel_cased_word)
-      names = camel_cased_word.gsub("_", "::").split('::')
-      names.shift if names.empty? || names.first.empty?
-
-      names.inject(Object) do |constant, name|
-        if constant == Object
-          constant.const_get(name)
-        else
-          candidate = constant.const_get(name)
-          next candidate if constant.const_defined?(name, false)
-          next candidate unless Object.const_defined?(name)
-
-          # Go down the ancestors to check it it's owned
-          # directly before we reach Object or the end of ancestors.
-          constant = constant.ancestors.inject do |const, ancestor|
-            break const    if ancestor == Object
-            break ancestor if ancestor.const_defined?(name, false)
-            const
-          end
-
-          # owner is in Object, so raise
-          constant.const_get(name, false)
-        end
       end
     end
   end
