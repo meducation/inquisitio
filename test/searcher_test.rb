@@ -6,9 +6,10 @@ module Inquisitio
       super
       @search_endpoint = 'http://my.search-endpoint.com'
       Inquisitio.config.search_endpoint = @search_endpoint
-      @expected_result_1 = {'id' => 1, 'title' => "Foobar", 'type' => "cat"}
-      @expected_result_2 = {'id' => 2, 'title' => "Foobar2", 'type' => "dog"}
-      @expected_results = [@expected_result_1, @expected_result_2]
+      @result_1 = {'med_id' => 1, 'title' => "Foobar", 'med_type' => "Cat"}
+      @result_2 = {'med_id' => 2, 'title' => "Foobar", 'med_type' => "Cat"}
+      @result_3 = {'med_id' => 20, 'title' => "Foobar2", 'med_type' => "Module_Dog"}
+      @expected_results = [@result_1, @result_2, @result_3]
 
       @body = <<-EOS
       {"rank":"-text_relevance","match-expr":"(label 'star wars')","hits":{"found":2,"start":0,"hit":#{@expected_results.to_json}},"info":{"rid":"9d3b24b0e3399866dd8d376a7b1e0f6e930d55830b33a474bfac11146e9ca1b3b8adf0141a93ecee","time-ms":3,"cpu-time-ms":0}}
@@ -147,9 +148,9 @@ module Inquisitio
     end
 
     def test_returns_doesnt_mutate_searcher
-      searcher = Searcher.returns(1)
-      searcher.returns(2)
-      assert_equal [1], searcher.params[:returns]
+      searcher = Searcher.returns(:foobar)
+      searcher.returns(:dogcat)
+      assert_equal [:foobar], searcher.params[:returns]
     end
 
     def test_returns_returns_a_new_searcher
@@ -159,18 +160,18 @@ module Inquisitio
     end
 
     def test_returns_sets_variable
-      searcher = Searcher.returns('med_id')
-      assert_equal ['med_id'], searcher.params[:returns]
+      searcher = Searcher.returns('foobar')
+      assert searcher.params[:returns].include?('foobar')
     end
 
     def test_returns_gets_correct_urlns_appends_variable
-      searcher = Searcher.returns('med_id')
-      assert searcher.send(:search_url).include? "&return-fields=med_id"
+      searcher = Searcher.returns('foobar')
+      assert searcher.send(:search_url).include? "&return-fields=foobar"
     end
 
     def test_returns_with_array_sets_variable
-      searcher = Searcher.returns('med_id', 'foobar')
-      assert_equal ['med_id', 'foobar'], searcher.params[:returns]
+      searcher = Searcher.returns('dog', 'cat')
+      assert_equal ['dog', 'cat'], searcher.params[:returns]
     end
 
     def test_returns_with_array_gets_correct_url
@@ -246,48 +247,41 @@ module Inquisitio
       2.times { searcher.search }
     end
 
+    def test_should_return_type_and_id_by_default
+      searcher = Searcher.where('Star Wars')
+      assert_equal [], searcher.params[:returns]
+      assert searcher.send(:search_url).include? "&return-fields=med_type,med_id"
+      searcher.send(:search_url)
+    end
+
+    def test_should_return_ids
+      searcher = Searcher.where('Star Wars')
+      assert_equal @expected_results.map{|r|r['med_id']}, searcher.ids
+    end
+
+    def test_should_return_ids
+      Object.const_set :Cat, Object.new
+      Module.const_set :Dog, Object.new
+
+      res1 = "Foobar"
+      res2 = 123
+      res3 = true
+
+      Cat.expects(:where).with(id: [1,2]).returns([res1, res2])
+      Module::Dog.expects(:where).with(id: [20]).returns([res3])
+
+      searcher = Searcher.new
+      searcher.instance_variable_set("@results", [])
+      assert_equal [res1, res2, res3], Searcher.records
+    end
+
 =begin
-    def test_initialization_with_string
-      filters = { :genre => [ 'Animation' ] }
-      return_fields = [ 'title' ]
-      searcher = Searcher.new('Star Wars', filters.merge({return_fields: return_fields}))
-      assert_equal 'Star Wars', searcher.instance_variable_get("@query")
-      assert_equal filters, searcher.instance_variable_get("@filters")
-      assert_equal return_fields, searcher.instance_variable_get("@return_fields")
-    end
-
-    def test_initialization_with_hash
-      filters = { :genre => [ 'Animation' ] }
-      return_fields = [ 'title' ]
-      searcher = Searcher.new(filters.merge({return_fields: return_fields}))
-      assert_equal nil, searcher.instance_variable_get("@query")
-      assert_equal filters, searcher.instance_variable_get("@filters")
-      assert_equal return_fields, searcher.instance_variable_get("@return_fields")
-    end
-
     def test_searcher_should_raise_exception_if_query_null
       assert_raises(InquisitioError, "Query is nil") do
         Searcher.search(nil)
       end
     end
 
-    def test_search_should_set_ids
-      searcher = Searcher.new('Star Wars', { :return_fields => [ 'title', 'year', '%' ] } )
-      searcher.search
-      assert_equal @expected_results.map{|r|r['id']}, searcher.ids
-    end
-
-    def test_search_should_set_records
-      searcher = Searcher.new('Star Wars', { :return_fields => [ 'title', 'year', '%' ] } )
-      searcher.search
-
-      # [{"MediaFile" => 1}, {...}]
-      records = []
-      records << {@expected_result_1['type'] => @expected_result_1['id']}
-      records << {@expected_result_2['type'] => @expected_result_2['id']}
-      assert_equal records, searcher.records
-    end
-  end
 =end
   end
 end
