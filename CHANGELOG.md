@@ -1,4 +1,4 @@
-0.0.13 / Unreleased
+0.0.13 / 2013-10-28
 
 [FEATURE] Implement Searcher#records
 [FEATURE] Implement Searcher#ids
