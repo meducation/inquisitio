@@ -1,3 +1,7 @@
+0.1.1 / Unreleased
+
+[FEATURE] Add pagination methods to match Kaminari
+
 0.1.0 / 2013-10-28
 
 [BUGFIX] Parse ids properly.

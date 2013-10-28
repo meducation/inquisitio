@@ -262,60 +262,6 @@ module Inquisitio
       searcher.send(:search_url)
     end
 
-    def test_should_return_total_count
-      searcher = Searcher.where("star_wars")
-      searcher.search
-      assert_equal @found, searcher.total_entries
-    end
-
-    def test_total_entries_should_proxy
-      searcher = Searcher.where("star_wars")
-      searcher.search
-      assert_equal @found, searcher.total_count
-    end
-
-    def test_should_return_results_per_page
-      per = 9
-      searcher = Searcher.per(per)
-      searcher.search
-      assert_equal per, searcher.results_per_page
-    end
-
-    def test_should_return_current_page
-      page = 7
-      searcher = Searcher.page(7)
-      searcher.search
-      assert_equal page, searcher.current_page
-    end
-
-    def test_should_return_total_pages_with_less
-      per = 10
-      searcher = Searcher.per(per)
-      searcher.search
-      assert_equal 1, searcher.total_pages
-    end
-
-    def test_should_return_total_pages_with_equal
-      per = 8
-      searcher = Searcher.per(per)
-      searcher.search
-      assert_equal 1, searcher.total_pages
-    end
-
-    def test_should_return_total_pages_with_more
-      per = 3
-      searcher = Searcher.per(per)
-      searcher.search
-      assert_equal 3, searcher.total_pages
-    end
-
-    def test_nums_pages_should_proxy
-      per = 3
-      searcher = Searcher.per(per)
-      searcher.search
-      assert_equal 3, searcher.num_pages
-    end
-
     def test_should_return_ids
       searcher = Searcher.where('Star Wars')
       assert_equal [1,2,20], searcher.ids
