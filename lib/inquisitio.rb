@@ -52,7 +52,7 @@ module Inquisitio
   # Specify a page number. Defaults to 1
   #
   # @param query The page number.
-  def self.where(page)
+  def self.page(page)
     Searcher.page(page)
   end
 
@@ -66,15 +66,15 @@ module Inquisitio
   # Specify which fields you want returned.
   #
   # @param query A string or array specifying the fields
-  def self.per(num)
-    Searcher.per(num)
+  def self.returns(num)
+    Searcher.returns(num)
   end
 
   # Specify any other fields you want to send as part of the request.
   #
   # @param query An array of fields.
   def self.with(num)
-    Searcher.per(num)
+    Searcher.with(num)
   end
 
   # Index a batch of documents.
