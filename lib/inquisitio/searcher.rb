@@ -27,16 +27,16 @@ module Inquisitio
     end
 
     def ids
-      @ids ||= map{|r|r['med_id']}
+      @ids ||= map{|r|r['data']['med_id'].first}.flatten.map(&:to_i)
     end
 
     def records
       @records ||= begin
         klasses = {}
         map do |result|
-          klass = result['med_type']
+          klass = result['data']['med_type'].first
           klasses[klass] ||= []
-          klasses[klass] << result['med_id']
+          klasses[klass] << result['data']['med_id'].first
         end
 
         klasses.map {|klass, ids|

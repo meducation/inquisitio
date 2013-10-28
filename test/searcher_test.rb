@@ -6,9 +6,9 @@ module Inquisitio
       super
       @search_endpoint = 'http://my.search-endpoint.com'
       Inquisitio.config.search_endpoint = @search_endpoint
-      @result_1 = {'med_id' => 1, 'title' => "Foobar", 'med_type' => "Cat"}
-      @result_2 = {'med_id' => 2, 'title' => "Foobar", 'med_type' => "Cat"}
-      @result_3 = {'med_id' => 20, 'title' => "Foobar2", 'med_type' => "Module_Dog"}
+      @result_1 = {'data' => {'med_id' => ['1'], 'title' => ["Foobar"], 'med_type' => ["Cat"]}}
+      @result_2 = {'data' => {'med_id' => ['2'], 'title' => ["Foobar"], 'med_type' => ["Cat"]}}
+      @result_3 = {'data' => {'med_id' => ['20'], 'title' => ["Foobar2"], 'med_type' => ["Module_Dog"]}}
       @expected_results = [@result_1, @result_2, @result_3]
 
       @body = <<-EOS
@@ -256,10 +256,10 @@ module Inquisitio
 
     def test_should_return_ids
       searcher = Searcher.where('Star Wars')
-      assert_equal @expected_results.map{|r|r['med_id']}, searcher.ids
+      assert_equal [1,2,20], searcher.ids
     end
 
-    def test_should_return_ids
+    def test_should_return_records
       Object.const_set :Cat, Object.new
       Module.const_set :Dog, Object.new
 
@@ -267,8 +267,8 @@ module Inquisitio
       res2 = 123
       res3 = true
 
-      Cat.expects(:where).with(id: [1,2]).returns([res1, res2])
-      Module::Dog.expects(:where).with(id: [20]).returns([res3])
+      Cat.expects(:where).with(id: ['1','2']).returns([res1, res2])
+      Module::Dog.expects(:where).with(id: ['20']).returns([res3])
 
       searcher = Searcher.new
       searcher.instance_variable_set("@results", [])

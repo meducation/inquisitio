@@ -1,3 +1,7 @@
+0.1.0 / 2013-10-28
+
+[BUGFIX] Parse ids properly.
+
 0.0.13 / 2013-10-28
 
 [FEATURE] Implement Searcher#records
