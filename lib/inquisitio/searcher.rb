@@ -1,124 +1,134 @@
 require 'excon'
+require "deep_clone"
 
 module Inquisitio
   class Searcher
 
-    def self.search(*args)
-      searcher = new(args)
-      searcher.search
-      searcher
-    end
-    
     def self.method_missing(name, *args)
       Searcher.new.send(name, *args)
     end
 
-    attr_reader :results
-    def initialize
-      @query = '*'
-      @per = 10
-      @page = 0
-      @criteria = []
-      @returns = []
-      @_with = {}
+    attr_reader :params
+    def initialize(params = nil)
+      @params = params || {
+        criteria: [],
+        filters: {},
+        per: 10,
+        page: 1,
+        returns: [],
+        with: {}
+      }
+
       yield(self) if block_given?
     end
 
     def search
-      response = Excon.get(search_url)
-      raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-      body = response.body
-      @results = JSON.parse(body)["hits"]["hit"]
+      results
     end
 
     def ids
-      @ids ||= @results.map{|result|result['id']}
+      @ids ||= map{|r|r['med_id']}
     end
 
     def records
-      @records ||= @results.map do |result|
-        {result['type'] => result['id']}
+      @records ||= begin
+        klasses = {}
+        map do |result|
+          klass = result['med_type']
+          klasses[klass] ||= []
+          klasses[klass] << result['med_id']
+        end
+
+        klasses.map {|klass, ids|
+          klass.constantize.where(id: ids)
+        }.flatten
       end
     end
-    
+
     def where(value)
       clone do |s|
-        if value.is_a?(String)
-          s.criteria << value
+        if value.is_a?(Array)
+          s.params[:criteria] += value
+        elsif value.is_a?(Hash)
+          value.each do |k,v|
+            s.params[:filters][k] ||= []
+            if v.is_a?(Array)
+              s.params[:filters][k] = v
+            else
+              s.params[:filters][k] << v
+            end
+          end
         else
-          s.filters = value
+          s.params[:criteria] << value
         end
       end
     end
-   
+
     def per(value)
       clone do |s|
-        s.per = value
-      end      
+        s.params[:per] = value.to_i
+      end
     end
-   
+
     def page(value)
       clone do |s|
-        s.page = value
-      end      
-    end
-   
-    def returns(*value)
-      if value.is_a?(Array)
-        value.each {|f| @returns << f}        
-      else
-        @returns << value        
+        s.params[:page] = value.to_i
       end
-      clone
     end
-    
+
+    def returns(*value)
+      clone do |s|
+        if value.is_a?(Array)
+          s.params[:returns] += value
+        else
+          s.params[:returns] << value
+        end
+      end
+    end
+
     def with(value)
       clone do |s|
-        s._with.merge!(value)
-      end    
+        s.params[:with].merge!(value)
+      end
     end
-    
-    protected
-    
-    attr_writer :criteria, :limit, :order, :filters, :per, :_with, :page
 
-    attr_reader :_with, :criteria
+    # Proxy everything to the results so that this this class
+    # transparently acts as an Array.
+    def method_missing(name, *args, &block)
+      results.to_a.send(name, *args, &block)
+    end
 
     private
-    
-    def search_url
-      @search_url ||= SearchUrlBuilder.build(query: @criteria, filters: @filters, arguments: @_with.merge({size: @per, offset: @per * @page}), return_fields: @returns)
+
+    def results
+      if @results.nil?
+        response = Excon.get(search_url)
+        raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
+        @results = JSON.parse(response.body)["hits"]["hit"]
+      end
+      @results
     end
-    
+
+    def search_url
+      @search_url ||= begin
+        return_fields = params[:returns].empty?? [:med_type, :med_id] : params[:returns]
+
+        SearchUrlBuilder.build(
+          query: params[:criteria],
+          filters: params[:filters],
+          arguments: params[:with].merge({
+            size: params[:per],
+            start: params[:per] * params[:page]
+          }),
+          return_fields: return_fields
+        )
+      end
+    end
+
     def clone
-      Searcher.new do |s|
-        s.instance_variable_set(:@filters, @filters)
-        s.instance_variable_set(:@per, @per)            
-        s.instance_variable_set(:@page, @page)
-        s.instance_variable_set(:@criteria, @criteria.flatten)
-        s.instance_variable_set(:@returns, @returns)
-        s.instance_variable_set(:@_with, @_with)
+      Searcher.new(DeepClone.clone(params)) do |s|
         yield(s) if block_given?
       end
     end
-    
   end
 end
-
-
-
-=begin
-    def initialize(query, filters = {})
-      raise InquisitioError.new("Query is null") if query.nil?
-
-      if query.is_a?(String)
-        @query = query
-        @filters = filters
-      else
-        @filters = query
-      end
-
-      @return_fields = @filters.delete(:return_fields)
-      @arguments = @filters.delete(:arguments)
-    end
-=end

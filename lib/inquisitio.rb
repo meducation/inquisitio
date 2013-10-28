@@ -1,6 +1,8 @@
 require "inquisitio/version"
 require "inquisitio/inquisitio_error"
 require "inquisitio/logger"
+require "inquisitio/active_support"
+
 require "inquisitio/configuration"
 require "inquisitio/document"
 require "inquisitio/search_url_builder"
@@ -33,12 +35,46 @@ module Inquisitio
     end
   end
 
-  # Perform a search.
+  # Exectues the generated query and returns self.
   #
-  # @param [String] query The search query.
-  # @param [Hash] options. Optionaly specify return_fields. The fields to be returned in the search results.
-  def self.search(query, options =  {})
-    Searcher.search(query, options)
+  # @param query The search query.
+  def self.search
+    Searcher.search
+  end
+
+  # Specify a condition as either a string, an array, or a hash.
+  #
+  # @param query The search query.
+  def self.where(query)
+    Searcher.where(query)
+  end
+
+  # Specify a page number. Defaults to 1
+  #
+  # @param query The page number.
+  def self.page(page)
+    Searcher.page(page)
+  end
+
+  # Specify the amount of results you want back
+  #
+  # @param query The amount of results.
+  def self.per(num)
+    Searcher.per(num)
+  end
+
+  # Specify which fields you want returned.
+  #
+  # @param query A string or array specifying the fields
+  def self.returns(num)
+    Searcher.returns(num)
+  end
+
+  # Specify any other fields you want to send as part of the request.
+  #
+  # @param query An array of fields.
+  def self.with(num)
+    Searcher.with(num)
   end
 
   # Index a batch of documents.
