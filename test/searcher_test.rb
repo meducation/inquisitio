@@ -10,9 +10,11 @@ module Inquisitio
       @result_2 = {'data' => {'med_id' => ['2'], 'title' => ["Foobar"], 'med_type' => ["Cat"]}}
       @result_3 = {'data' => {'med_id' => ['20'], 'title' => ["Foobar2"], 'med_type' => ["Module_Dog"]}}
       @expected_results = [@result_1, @result_2, @result_3]
+      @start = 5
+      @found = 8
 
       @body = <<-EOS
-      {"rank":"-text_relevance","match-expr":"(label 'star wars')","hits":{"found":2,"start":0,"hit":#{@expected_results.to_json}},"info":{"rid":"9d3b24b0e3399866dd8d376a7b1e0f6e930d55830b33a474bfac11146e9ca1b3b8adf0141a93ecee","time-ms":3,"cpu-time-ms":0}}
+      {"rank":"-text_relevance","match-expr":"(label 'star wars')","hits":{"found":#{@found},"start":#{@start},"hit":#{@expected_results.to_json}},"info":{"rid":"9d3b24b0e3399866dd8d376a7b1e0f6e930d55830b33a474bfac11146e9ca1b3b8adf0141a93ecee","time-ms":3,"cpu-time-ms":0}}
       EOS
 
       Excon.defaults[:mock] = true
@@ -235,10 +237,16 @@ module Inquisitio
       searcher.select { }
     end
 
-    def test_search_should_results
+    def test_search_should_set_results
       searcher = Searcher.where("star_wars")
       searcher.search
       assert_equal @expected_results, searcher.instance_variable_get("@results")
+    end
+
+    def test_search_should_create_a_results_object
+      searcher = Searcher.where("star_wars")
+      searcher.search
+      assert Results, searcher.instance_variable_get("@results").class
     end
 
     def test_search_only_runs_once

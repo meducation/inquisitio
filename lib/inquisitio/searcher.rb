@@ -104,7 +104,11 @@ module Inquisitio
       if @results.nil?
         response = Excon.get(search_url)
         raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-        @results = JSON.parse(response.body)["hits"]["hit"]
+        body = JSON.parse(response.body)
+        @results = Results.new(body["hits"]["hit"],
+                               params[:page],
+                               params[:per],
+                               body["hits"]["found"])
       end
       @results
     end
