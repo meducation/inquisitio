@@ -1,4 +1,4 @@
-0.1.1 / Unreleased
+0.1.1 / 2013-10-29 
 
 [FEATURE] Add pagination methods to match Kaminari
 
