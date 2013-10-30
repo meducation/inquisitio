@@ -102,6 +102,7 @@ module Inquisitio
 
     def results
       if @results.nil?
+        Inquisitio.config.logger.info("Performing search: #{search_url}")
         response = Excon.get(search_url)
         raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
         body = JSON.parse(response.body)
@@ -111,6 +112,9 @@ module Inquisitio
                                body["hits"]["found"])
       end
       @results
+    rescue => e
+        Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
+        raise InquisitioError.new("Exception performing search")
     end
 
     def search_url

@@ -1,3 +1,7 @@
+0.1.2 / 2013-10-30
+
+[BUGFIX] Convert EXCON ERROR to Inquisitio Error
+
 0.1.1 / 2013-10-29 
 
 [FEATURE] Add pagination methods to match Kaminari

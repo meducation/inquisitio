@@ -19,6 +19,7 @@ class Minitest::Test
 
       config.logger.stubs(:debug)
       config.logger.stubs(:error)
+      config.logger.stubs(:info)
     end
   end
 end
