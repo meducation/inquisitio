@@ -217,6 +217,16 @@ module Inquisitio
       end
     end
 
+    def test_search_raises_exception_when_excon_exception_thrown
+      Excon.stub({}, lambda { |_| raise Excon::Errors::Timeout})
+
+      searcher = Searcher.where('Star Wars')
+
+      assert_raises(InquisitioError) do
+        searcher.search
+      end
+    end
+
     def test_that_iterating_calls_results
       searcher = Searcher.where("star_wars")
       searcher.expects(results: [])
