@@ -40,6 +40,7 @@ module Inquisitio
         end
 
         klasses.map {|klass, ids|
+          klass = klass.gsub("_", "::")
           klass.constantize.where(id: ids)
         }.flatten
       end
