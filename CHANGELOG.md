@@ -1,3 +1,7 @@
+0.1.3 / 2013-10-31
+
+[BUGFIX] Fix namespacing issue with ActiveSupport::String
+
 0.1.2 / 2013-10-30
 
 [BUGFIX] Convert EXCON ERROR to Inquisitio Error
