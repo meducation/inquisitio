@@ -1,3 +1,7 @@
+0.1.4 / 2013-11-05
+
+[FEATURE] Added logging when indexing.
+
 0.1.3 / 2013-10-31
 
 [BUGFIX] Fix namespacing issue with ActiveSupport::String
