@@ -44,5 +44,25 @@ module Inquisitio
       assert_equal JSON.parse(@expected_SDF).to_json,
                    JSON.parse(@document.to_SDF).to_json
     end
+
+    def test_should_ignore_null_field_values_when_creating_SDF_json
+      expected_SDF = 
+        <<-EOS
+{ "type": "add",
+  "id":   "12345",
+  "version": 1,
+  "lang": "en",
+  "fields": {
+    "title": "The Title"
+  }
+}
+        EOS
+        
+      fields = { :title => 'The Title', :author => nil }
+      document = Document.new(@type, @id, @version, fields)
+        
+      assert_equal JSON.parse(expected_SDF).to_json,
+                   JSON.parse(document.to_SDF).to_json
+    end
   end
 end
