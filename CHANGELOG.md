@@ -1,3 +1,7 @@
+0.1.6 / 2013-11-05
+
+[BUGFIX] Correctly ignore nil fields when indexing.
+
 0.1.5 / 2013-11-05
 
 [FEATURE] Ignore nil fields when indexing.
