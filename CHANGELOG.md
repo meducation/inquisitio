@@ -1,3 +1,7 @@
+0.1.5 / 2013-11-05
+
+[FEATURE] Ignore nil fields when indexing.
+
 0.1.4 / 2013-11-05
 
 [FEATURE] Added logging when indexing.

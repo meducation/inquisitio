@@ -7,7 +7,7 @@ module Inquisitio
       @type = type
       @id = id
       @version = version
-      @fields = fields
+      @fields = fields.reject! {|k,v| v.nil?}
     end
 
     def to_SDF
