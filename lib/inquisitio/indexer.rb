@@ -15,9 +15,11 @@ module Inquisitio
     end
 
     def index
+      Inquisitio.config.logger.info "Indexer posting to #{batch_index_url} body: #{body}"
       response = Excon.post(batch_index_url,
                            :body => body,
                            :headers => {"Content-Type" =>"application/json"})
+      Inquisitio.config.logger.info "Response - status: #{response.status} body: #{response.body}"
       raise InquisitioError.new("Index failed with status code: #{response.status} Message: #{response.body}") unless response.status == 200
       response.body
     end
