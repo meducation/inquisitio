@@ -20,7 +20,7 @@ And then execute:
 
 This gem allows you to build and execute queries to run against Amazon Cloud Search.
 
-```
+```ruby
 results = Inquisitio.where("foobar").per(10).page(2).with(facet: 'thingy')
 results.each do |result|
   # ...
