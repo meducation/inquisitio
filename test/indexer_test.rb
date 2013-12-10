@@ -7,6 +7,8 @@ module Inquisitio
       Inquisitio.config.document_endpoint = @document_endpoint
     #def initialize(type, id, version, fields)
       @documents = [Document.new("add", "12345", 1, {})]
+      
+      Inquisitio.config.dry_run = false      
     end
 
     def teardown
@@ -69,6 +71,16 @@ module Inquisitio
       indexer = Indexer.new(@documents)
       response = indexer.index
       assert_equal body, response
+    end
+
+    def test_index_does_not_post_when_in_dry_run_mode
+      Excon.defaults[:mock] = true
+      
+      Inquisitio.config.dry_run = true
+      
+      indexer = Indexer.new(@documents)
+      response = indexer.index
+      assert response.nil?
     end
   end
 end
