@@ -54,6 +54,19 @@ module Inquisitio
         Inquisitio.config.default_search_size
       end
     end
+
+    def test_logger_is_configured_by_default
+      assert_kind_of Inquisitio::Logger, Inquisitio.config.logger
+    end
+
+    def test_dry_run_disabled_by_default
+      refute Inquisitio.config.dry_run
+    end
+    
+    def test_enable_dry_run
+      Inquisitio.config.dry_run = true
+      assert Inquisitio.config.dry_run
+    end
   end
 end
 

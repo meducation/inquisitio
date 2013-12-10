@@ -1,3 +1,8 @@
+0.1.7 / 2013-12-10
+
+[FEATURE] Added dry-run configuration option to prevent data being sent to 
+          CloudSearch when indexing.
+
 0.1.6 / 2013-11-05
 
 [BUGFIX] Correctly ignore nil fields when indexing.
