@@ -1,4 +1,4 @@
-0.1.7 / 2013-12-10
+0.1.7 / 2013-12-13
 
 [FEATURE] Added dry-run configuration option to prevent data being sent to 
           CloudSearch when indexing.
