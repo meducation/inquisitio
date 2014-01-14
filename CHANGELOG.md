@@ -1,3 +1,7 @@
+0.2.0 / 2014-01-14
+
+[FEATURE] Add support for retrying query
+
 0.1.7 / 2013-12-13
 
 [FEATURE] Added dry-run configuration option to prevent data being sent to 

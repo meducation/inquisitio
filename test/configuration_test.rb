@@ -20,6 +20,10 @@ module Inquisitio
     end
 
     def test_search_endpoint
+      assert_equal 3, Inquisitio.config.max_attempts
+    end
+
+    def test_search_endpoint
       search_endpoint = "test-search-endpoint"
       Inquisitio.config.search_endpoint = search_endpoint
       assert_equal search_endpoint, Inquisitio.config.search_endpoint

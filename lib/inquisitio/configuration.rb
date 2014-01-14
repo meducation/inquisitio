@@ -10,14 +10,16 @@ module Inquisitio
       :document_endpoint,
       :default_search_size,
       :dry_run,
-      :logger
+      :logger,
+      :max_attempts
     ]
-    
+
     attr_writer *SETTINGS
 
     def initialize
       self.logger = Inquisitio::Logger.new
       self.dry_run = false
+      self.max_attempts = 3
     end
 
     SETTINGS.each do |setting|
