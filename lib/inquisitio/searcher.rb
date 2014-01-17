@@ -18,6 +18,7 @@ module Inquisitio
         returns: [],
         with: {}
       }
+      @failed_attempts = 0
 
       yield(self) if block_given?
     end
@@ -33,7 +34,7 @@ module Inquisitio
     def records
       @records ||= begin
         klasses = {}
-        map do |result|
+        results.map do |result|
           klass = result['data']['med_type'].first
           klasses[klass] ||= []
           klasses[klass] << result['data']['med_id'].first
@@ -102,20 +103,26 @@ module Inquisitio
     private
 
     def results
-      if @results.nil?
-        Inquisitio.config.logger.info("Performing search: #{search_url}")
-        response = Excon.get(search_url)
-        raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-        body = JSON.parse(response.body)
-        @results = Results.new(body["hits"]["hit"],
-                               params[:page],
-                               params[:per],
-                               body["hits"]["found"])
-      end
-      @results
+      return @results unless @results.nil?
+
+      Inquisitio.config.logger.info("Performing search: #{search_url}")
+      response = Excon.get(search_url)
+      raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
+      body = JSON.parse(response.body)
+      @results = Results.new(body["hits"]["hit"],
+                             params[:page],
+                             params[:per],
+                             body["hits"]["found"])
     rescue => e
-        Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
+      @failed_attempts += 1
+      Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
+
+      if @failed_attempts < Inquisitio.config.max_attempts
+        Inquisitio.config.logger.error("Retrying search #{@failed_attempts}/#{Inquisitio.config.max_attempts}")
+        results
+      else
         raise InquisitioError.new("Exception performing search")
+      end
     end
 
     def search_url

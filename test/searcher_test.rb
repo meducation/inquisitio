@@ -211,6 +211,7 @@ module Inquisitio
       Excon.stub({}, {:body => 'Bad Happened', :status => 500})
 
       searcher = Searcher.where('Star Wars')
+      searcher.instance_variable_set(:@failed_attempts, 3)
 
       assert_raises(InquisitioError, "Search failed with status code 500") do
         searcher.search
@@ -221,8 +222,18 @@ module Inquisitio
       Excon.stub({}, lambda { |_| raise Excon::Errors::Timeout})
 
       searcher = Searcher.where('Star Wars')
+      searcher.instance_variable_set(:@failed_attempts, 3)
 
       assert_raises(InquisitioError) do
+        searcher.search
+      end
+    end
+
+    def test_search_retries_when_failed_attempts_under_limit
+      Excon.expects(:get).raises(Excon::Errors::Timeout).times(3)
+
+      searcher = Searcher.where('Star Wars')
+      assert_raises(InquisitioError, "Search failed with status code 500") do
         searcher.search
       end
     end
