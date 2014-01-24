@@ -28,16 +28,16 @@ module Inquisitio
     end
 
     def ids
-      @ids ||= map{|r|r['data']['med_id'].first}.flatten.map(&:to_i)
+      @ids ||= map{|r|r['data']['id'].first}.flatten.map(&:to_i)
     end
 
     def records
       @records ||= begin
         klasses = {}
         results.map do |result|
-          klass = result['data']['med_type'].first
+          klass = result['data']['type'].first
           klasses[klass] ||= []
-          klasses[klass] << result['data']['med_id'].first
+          klasses[klass] << result['data']['id'].first
         end
 
         klasses.map {|klass, ids|
@@ -127,7 +127,7 @@ module Inquisitio
 
     def search_url
       @search_url ||= begin
-        return_fields = params[:returns].empty?? [:med_type, :med_id] : params[:returns]
+        return_fields = params[:returns].empty?? [:type, :id] : params[:returns]
 
         SearchUrlBuilder.build(
           query: params[:criteria],

@@ -1,3 +1,7 @@
+1.1.0 / 2014-01-24
+
+[BUGFIX] Use 'type' and 'id' fields instead of deprecated med_ fields
+
 0.2.0 / 2014-01-14
 
 [FEATURE] Add support for retrying query

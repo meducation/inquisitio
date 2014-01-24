@@ -6,9 +6,9 @@ module Inquisitio
       super
       @search_endpoint = 'http://my.search-endpoint.com'
       Inquisitio.config.search_endpoint = @search_endpoint
-      @result_1 = {'data' => {'med_id' => ['1'], 'title' => ["Foobar"], 'med_type' => ["Cat"]}}
-      @result_2 = {'data' => {'med_id' => ['2'], 'title' => ["Foobar"], 'med_type' => ["Cat"]}}
-      @result_3 = {'data' => {'med_id' => ['20'], 'title' => ["Foobar2"], 'med_type' => ["Module_Dog"]}}
+      @result_1 = {'data' => {'id' => ['1'], 'title' => ["Foobar"], 'type' => ["Cat"]}}
+      @result_2 = {'data' => {'id' => ['2'], 'title' => ["Foobar"], 'type' => ["Cat"]}}
+      @result_3 = {'data' => {'id' => ['20'], 'title' => ["Foobar2"], 'type' => ["Module_Dog"]}}
       @expected_results = [@result_1, @result_2, @result_3]
       @start = 5
       @found = 8
@@ -177,13 +177,13 @@ module Inquisitio
     end
 
     def test_returns_with_array_gets_correct_url
-      searcher = Searcher.returns('med_id', 'foobar')
-      assert searcher.send(:search_url).include? "&return-fields=med_id,foobar"
+      searcher = Searcher.returns('id', 'foobar')
+      assert searcher.send(:search_url).include? "&return-fields=id,foobar"
     end
 
     def test_returns_appends_variable
-      searcher = Searcher.returns('med_id').returns('foobar')
-      assert_equal ['med_id', 'foobar'], searcher.params[:returns]
+      searcher = Searcher.returns('id').returns('foobar')
+      assert_equal ['id', 'foobar'], searcher.params[:returns]
     end
 
     def test_with_saves_variable
@@ -279,7 +279,7 @@ module Inquisitio
     def test_should_return_type_and_id_by_default
       searcher = Searcher.where('Star Wars')
       assert_equal [], searcher.params[:returns]
-      assert searcher.send(:search_url).include? "&return-fields=med_type,med_id"
+      assert searcher.send(:search_url).include? "&return-fields=type,id"
       searcher.send(:search_url)
     end
 
