@@ -1,6 +1,21 @@
 require File.expand_path('../test_helper', __FILE__)
 
 module Inquisitio
+
+  class Elephant
+    attr_accessor :id, :name
+    def initialize(_id, _name)
+      @id, @name = _id, _name
+    end
+  end
+
+  class Giraffe
+    attr_accessor :id, :name
+    def initialize(_id, _name)
+      @id, @name = _id, _name
+    end
+  end
+
   class SearcherTest < Minitest::Test
     def setup
       super
@@ -288,20 +303,24 @@ module Inquisitio
       assert_equal [1,2,20], searcher.ids
     end
 
-    def test_should_return_records
-      Object.const_set :Cat, Object.new
-      Module.const_set :Dog, Object.new
+    def test_should_return_records_in_results_order
+      expected_1 = Elephant.new(2, 'Sootica')
+      expected_2 = Giraffe.new(20, 'Wolf')
+      expected_3 = Elephant.new(1, 'Gobbolino')
 
-      res1 = "Foobar"
-      res2 = 123
-      res3 = true
-
-      Cat.expects(:where).with(id: ['1','2']).returns([res1, res2])
-      Module::Dog.expects(:where).with(id: ['20']).returns([res3])
+      Elephant.expects(:where).with(id: ['2','1']).returns([expected_3, expected_1])
+      Giraffe.expects(:where).with(id: ['20']).returns([expected_2])
 
       searcher = Searcher.new
-      searcher.instance_variable_set("@results", [])
-      assert_equal [res1, res2, res3], Searcher.records
+      result = [
+          {'data' => {'id' => ['2'],  'type' => ['Inquisitio_Elephant']}},
+          {'data' => {'id' => ['20'], 'type' => ['Inquisitio_Giraffe']}},
+          {'data' => {'id' => ['1'],  'type' => ['Inquisitio_Elephant']}}
+      ]
+      searcher.instance_variable_set("@results", result)
+      expected_records = [expected_1, expected_2, expected_3]
+      actual_records = searcher.records
+      assert_equal expected_records, actual_records
     end
   end
 end
