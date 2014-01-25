@@ -14,18 +14,18 @@ require "inquisitio"
 endpoint = ARGV[0]
 query = ARGV[1]
 filter_name = ARGV[2]
-filter_value =  ARGV[3]
-return_fields = [ ARGV[4] ]
+filter_value = ARGV[3]
+return_fields = [ARGV[4]]
 
 Inquisitio.config do |config|
   config.search_endpoint = endpoint
 end
 
 puts Inquisitio.search(query,
-                       { filter_name.to_sym => filter_value.to_sym, 
-                         :arguments => { :facet => 'genre',
-                                         'facet-genre-constraints' => 'Animation',
-                                         'facet-genre-top-n' => '5'
-                                       },
-                         :return_fields => return_fields
-                       } )
+                       {filter_name.to_sym => filter_value.to_sym,
+                        :arguments => {:facet => 'genre',
+                                       'facet-genre-constraints' => 'Animation',
+                                       'facet-genre-top-n' => '5'
+                        },
+                        :return_fields => return_fields
+                       })

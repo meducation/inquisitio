@@ -1,3 +1,7 @@
+1.1.1 / 2014-01-25
+
+[BUGFIX] Sort records into result order before returning
+
 1.1.0 / 2014-01-24
 
 [BUGFIX] Use 'type' and 'id' fields instead of deprecated med_ fields

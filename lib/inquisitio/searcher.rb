@@ -9,6 +9,7 @@ module Inquisitio
     end
 
     attr_reader :params
+
     def initialize(params = nil)
       @params = params || {
         criteria: [],
@@ -28,23 +29,38 @@ module Inquisitio
     end
 
     def ids
-      @ids ||= map{|r|r['data']['id'].first}.flatten.map(&:to_i)
+      @ids ||= map { |r| r['data']['id'].first }.flatten.map(&:to_i)
     end
 
     def records
-      @records ||= begin
-        klasses = {}
-        results.map do |result|
-          klass = result['data']['type'].first
-          klasses[klass] ||= []
-          klasses[klass] << result['data']['id'].first
-        end
+      return @records unless @records.nil?
 
-        klasses.map {|klass, ids|
-          klass = klass.gsub("_", "::")
-          klass.constantize.where(id: ids)
-        }.flatten
+      @records = []
+      klasses = {}
+      results.each do |result|
+        klass = result['data']['type'].first
+        id = result['data']['id'].first
+        klasses[klass] ||= []
+        klasses[klass] << id
       end
+
+      objs = klasses.map { |klass_name, ids|
+        klass_name = klass_name.gsub("_", "::")
+        klass = klass_name.constantize
+        klass.where(id: ids)
+      }.flatten
+
+      results.each do |result|
+        klass_name = result['data']['type'].first
+        klass_name = klass_name.gsub("_", "::")
+        id = result['data']['id'].first
+        record = objs.select { |r|
+          r.class.name == klass_name && r.id == id.to_i
+        }.first
+        @records << record
+      end
+
+      return @records
     end
 
     def where(value)
@@ -52,7 +68,7 @@ module Inquisitio
         if value.is_a?(Array)
           s.params[:criteria] += value
         elsif value.is_a?(Hash)
-          value.each do |k,v|
+          value.each do |k, v|
             s.params[:filters][k] ||= []
             if v.is_a?(Array)
               s.params[:filters][k] = v
@@ -110,9 +126,9 @@ module Inquisitio
       raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
       body = JSON.parse(response.body)
       @results = Results.new(body["hits"]["hit"],
-                             params[:page],
-                             params[:per],
-                             body["hits"]["found"])
+        params[:page],
+        params[:per],
+        body["hits"]["found"])
     rescue => e
       @failed_attempts += 1
       Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
@@ -127,7 +143,7 @@ module Inquisitio
 
     def search_url
       @search_url ||= begin
-        return_fields = params[:returns].empty?? [:type, :id] : params[:returns]
+        return_fields = params[:returns].empty? ? [:type, :id] : params[:returns]
 
         SearchUrlBuilder.build(
           query: params[:criteria],
