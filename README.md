@@ -4,7 +4,7 @@
 [![Dependencies](https://gemnasium.com/meducation/inquisitio.png?travis)](https://gemnasium.com/meducation/inquisitio)
 [![Code Climate](https://codeclimate.com/github/meducation/inquisitio.png)](https://codeclimate.com/github/meducation/inquisitio)
 
-Inquisitio is a ruby wrapper around Amazon Cloud Search. It is currently under active development.
+Inquisitio is a ruby wrapper around Amazon Cloud Search. 
 
 ## Installation
 
@@ -42,6 +42,7 @@ These individuals have come up with the ideas and written the code that made thi
 - [Jeremy Walker](http://github.com/iHID)
 - [Malcolm Landon](http://github.com/malcyL)
 - [Charles Care](http://github.com/ccare)
+- [Rob Styles](http://github.com/mmmmmrob)
 
 ## Licence
 
