@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Inquisitio by meducation</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Inquisitio</h1>
+        <h2>A Ruby wrapper for CloudSearch</h2>
+        <a href="https://github.com/meducation/inquisitio" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="inquisitio" class="anchor" href="#inquisitio"><span class="octicon octicon-link"></span></a>Inquisitio</h1>
+
+<p><a href="https://travis-ci.org/meducation/inquisitio"><img src="https://travis-ci.org/meducation/inquisitio.png" alt="Build Status"></a>
+<a href="https://gemnasium.com/meducation/inquisitio"><img src="https://gemnasium.com/meducation/inquisitio.png?travis" alt="Dependencies"></a>
+<a href="https://codeclimate.com/github/meducation/inquisitio"><img src="https://codeclimate.com/github/meducation/inquisitio.png" alt="Code Climate"></a></p>
+
+<p>Inquisitio is a ruby wrapper around Amazon Cloud Search. It is currently under active development.</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<pre><code>gem 'inquisitio'
+</code></pre>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>This gem allows you to build and execute queries to run against Amazon Cloud Search.</p>
+
+<div class="highlight highlight-ruby"><pre><span class="n">results</span> <span class="o">=</span> <span class="no">Inquisitio</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s2">"foobar"</span><span class="p">)</span><span class="o">.</span><span class="n">per</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">page</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">with</span><span class="p">(</span><span class="ss">facet</span><span class="p">:</span> <span class="s1">'thingy'</span><span class="p">)</span>
+<span class="n">results</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">result</span><span class="o">|</span>
+  <span class="c1"># ...</span>
+<span class="k">end</span>
+</pre></div>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Firstly, thank you!! <img class="emoji" title=":heart:" alt=":heart:" src="https://github.global.ssl.fastly.net/images/icons/emoji/heart.png" height="20" width="20" align="absmiddle"><img class="emoji" title=":sparkling_heart:" alt=":sparkling_heart:" src="https://github.global.ssl.fastly.net/images/icons/emoji/sparkling_heart.png" height="20" width="20" align="absmiddle"><img class="emoji" title=":heart:" alt=":heart:" src="https://github.global.ssl.fastly.net/images/icons/emoji/heart.png" height="20" width="20" align="absmiddle"></p>
+
+<p>We'd love to have you involved. Please read our <a href="https://github.com/meducation/inquisitio/tree/master/CONTRIBUTING.md">contributing guide</a> for information on how to get stuck in.</p>
+
+<h3>
+<a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h3>
+
+<p>This project is managed by the <a href="http://company.meducation.net/about#team">Meducation team</a>. </p>
+
+<p>These individuals have come up with the ideas and written the code that made this possible:</p>
+
+<ul>
+<li><a href="http://github.com/iHID">Jeremy Walker</a></li>
+<li><a href="http://github.com/malcyL">Malcolm Landon</a></li>
+<li><a href="http://github.com/ccare">Charles Care</a></li>
+</ul><h2>
+<a name="licence" class="anchor" href="#licence"><span class="octicon octicon-link"></span></a>Licence</h2>
+
+<p>Copyright (C) 2013 New Media Education Ltd</p>
+
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.</p>
+
+<p>A copy of the GNU Affero General Public License is available in <a href="https://github.com/meducation/inquisitio/blob/master/LICENCE.md">Licence.md</a>
+along with this program.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/meducation/inquisitio/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/meducation/inquisitio/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/meducation/inquisitio"></a> is maintained by <a href="https://github.com/meducation">meducation</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
