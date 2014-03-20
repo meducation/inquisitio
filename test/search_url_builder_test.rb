@@ -15,17 +15,24 @@ module Inquisitio
       assert_equal expected_url, url
     end
 
+    def test_create_correct_search_url_with_ampersand
+      url = SearchUrlBuilder.build(query: ['Star&Wars'])
+      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%26Wars&size=10'
+      assert_equal expected_url, url
+    end
+
     def test_create_correct_search_url_with_multiple_criteria_should_create_boolean_query
       url = SearchUrlBuilder.build(query: ['Star Wars', 'Episode One'])
       expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20(or%20\'Star%20Wars\'%20\'Episode%20One\'))&size=10'
       assert_equal expected_url, url
     end
 
-    def test_create_correct_search_url_with_multiple_criteria
-      url = SearchUrlBuilder.build(query: ['Star Wars'])
-      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?q=Star%20Wars&size=10'
+    def test_create_correct_search_url_with_multiple_criteria_with_ampersand
+      url = SearchUrlBuilder.build(query: ['Star&Wars', 'Episode One'])
+      expected_url = 'http://my.search-endpoint.com/2011-02-01/search?bq=(and%20(or%20\'Star%26Wars\'%20\'Episode%20One\'))&size=10'
       assert_equal expected_url, url
     end
+
 
     def test_create_correct_search_url_including_return_fields
       url = SearchUrlBuilder.build(query: ['Star Wars'], return_fields: [ 'title', 'year', '%' ] )

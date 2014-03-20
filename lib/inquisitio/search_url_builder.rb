@@ -24,7 +24,7 @@ module Inquisitio
 
     private
     def simple_query
-      "q=#{URI.encode(@query.first.gsub('\'',''))}"
+      "q=#{URI.encode(sanitise(@query.first)).gsub('&', '%26')}"
     end
 
     def boolean_query
@@ -49,11 +49,11 @@ module Inquisitio
         end
       end
 
-      "bq=#{URI.encode("(and #{query_blocks.join(' ')})")}"
+      "bq=#{URI.encode("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
     end
 
     def sanitise(value)
-      value.to_s.gsub('\'','');
+      value.to_s.gsub('\'','')
     end
 
     def return_fields_query_string
