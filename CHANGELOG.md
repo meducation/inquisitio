@@ -1,3 +1,6 @@
+1.2.0 / 2014-06-03
+[FEATURE] Support for 2013-01-01 version of cloudsearch API
+
 1.1.2 / 2014-03-20
 [BUGFIX] Encode ampersands
 
