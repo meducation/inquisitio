@@ -49,7 +49,11 @@ module Inquisitio
         end
       end
 
-      "bq=#{URI.encode("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
+      if Inquisitio.config.api_version == '2011-02-01'
+        "bq=#{URI.encode("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
+      elsif Inquisitio.config.api_version == '2013-01-01'
+        "q=#{URI.encode("(and #{query_blocks.join(' ')})").gsub('&', '%26')}&q.parser=structured"
+      end
     end
 
     def sanitise(value)
@@ -58,7 +62,11 @@ module Inquisitio
 
     def return_fields_query_string
       return "" if @return_fields.nil?
-      "&return-fields=#{URI::encode(@return_fields.join(',').gsub('\'',''))}"
+      if Inquisitio.config.api_version == '2011-02-01'
+        "&return-fields=#{URI::encode(@return_fields.join(',').gsub('\'',''))}"
+      elsif Inquisitio.config.api_version == '2013-01-01'
+        "&return=#{URI::encode(@return_fields.join(',').gsub('\'',''))}"
+      end
     end
 
     def arguments
@@ -67,7 +75,7 @@ module Inquisitio
     end
 
     def url_root
-      "#{Inquisitio.config.search_endpoint}/2011-02-01/search?"
+      "#{Inquisitio.config.search_endpoint}/#{Inquisitio.config.api_version}/search?"
     end
 
     def add_default_size

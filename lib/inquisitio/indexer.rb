@@ -31,7 +31,7 @@ module Inquisitio
     end
 
     def batch_index_url
-      "#{Inquisitio.config.document_endpoint}/2011-02-01/documents/batch"
+      "#{Inquisitio.config.document_endpoint}/#{Inquisitio.config.api_version}/documents/batch"
     end
       
     def post_to_endpoint
