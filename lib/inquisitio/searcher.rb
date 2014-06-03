@@ -152,10 +152,9 @@ module Inquisitio
         SearchUrlBuilder.build(
           query: params[:criteria],
           filters: params[:filters],
-          arguments: params[:with].merge({
-            size: params[:per],
-            start: params[:per] * params[:page]
-          }),
+          arguments: params[:with],
+          size: params[:per],
+          start: params[:per] * (params[:page] - 1),
           return_fields: return_fields
         )
       end

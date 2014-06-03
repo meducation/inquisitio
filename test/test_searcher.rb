@@ -168,7 +168,12 @@ module Inquisitio
 
     def test_page_gets_correct_url
       searcher = Searcher.page(3).per(15)
-      assert searcher.send(:search_url).include? "&start=45"
+      assert searcher.send(:search_url).include? '&start=30'
+    end
+
+    def test_that_starts_at_zero
+      searcher = Searcher.where("foo")
+      refute searcher.send(:search_url).include? '&start='
     end
 
     def test_returns_doesnt_mutate_searcher

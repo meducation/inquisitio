@@ -8,9 +8,10 @@ module Inquisitio
     def initialize(options = {})
       @query         = options[:query]
       @filters       = options[:filters] || {}
-      @arguments     = options[:arguments]
+      @arguments     = options[:arguments] || {}
       @return_fields = options[:return_fields]
-      add_default_size if @arguments.nil? || @arguments[:size].nil?
+      @size = options[:size] || Inquisitio.config.default_search_size
+      @start = options[:start] || 0
     end
 
     def build
@@ -19,6 +20,8 @@ module Inquisitio
       components << (is_simple ? simple_query : boolean_query)
       components << return_fields_query_string
       components << arguments
+      components << "&size=#{@size}" unless @arguments[:size]
+      components << "&start=#{@start}" unless @arguments[:start] || @start == 0 || @start == '0'
       components.join("")
     end
 
@@ -78,13 +81,5 @@ module Inquisitio
       "#{Inquisitio.config.search_endpoint}/#{Inquisitio.config.api_version}/search?"
     end
 
-    def add_default_size
-      if @arguments.nil?
-        @arguments = {}
-      end
-      if @arguments[:size].nil?
-        @arguments = @arguments.merge(:size => Inquisitio.config.default_search_size)
-      end
-    end
   end
 end
