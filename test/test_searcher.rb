@@ -168,7 +168,6 @@ module Inquisitio
 
     def test_page_gets_correct_url
       searcher = Searcher.page(3).per(15)
-      puts searcher.send(:search_url)
       assert searcher.send(:search_url).include? '&start=30'
     end
 
