@@ -16,11 +16,12 @@ module Inquisitio
     end
   end
 
-  class SearcherTest < Minitest::Test
+  class TestSearcher < Minitest::Test
     def setup
       super
       @search_endpoint = 'http://my.search-endpoint.com'
       Inquisitio.config.search_endpoint = @search_endpoint
+      Inquisitio.config.api_version = nil
       @result_1 = {'data' => {'id' => ['1'], 'title' => ["Foobar"], 'type' => ["Cat"]}}
       @result_2 = {'data' => {'id' => ['2'], 'title' => ["Foobar"], 'type' => ["Cat"]}}
       @result_3 = {'data' => {'id' => ['20'], 'title' => ["Foobar2"], 'type' => ["Module_Dog"]}}
@@ -91,9 +92,15 @@ module Inquisitio
       assert searcher.send(:search_url).include? "q=Star%20Wars"
     end
 
-    def test_where_gets_correct_url_with_filters
+    def test_where_gets_correct_url_with_filters_for_2011
       searcher = Searcher.where(title: 'Star Wars')
       assert searcher.send(:search_url).include? "bq=(and%20(or%20title:'Star%20Wars'))"
+    end
+
+    def test_where_gets_correct_url_with_filters_for_2013
+      Inquisitio.config.api_version = '2013-01-01'
+      searcher = Searcher.where(title: 'Star Wars')
+      assert searcher.send(:search_url).include? "q=(and%20(or%20title:'Star%20Wars'))&q.parser=structured"
     end
 
     def test_where_works_with_array_in_a_hash
@@ -181,9 +188,15 @@ module Inquisitio
       assert searcher.params[:returns].include?('foobar')
     end
 
-    def test_returns_gets_correct_urlns_appends_variable
+    def test_returns_gets_correct_urlns_appends_variable_for_2011
       searcher = Searcher.returns('foobar')
       assert searcher.send(:search_url).include? "&return-fields=foobar"
+    end
+
+    def test_returns_gets_correct_urlns_appends_variable_for_2013
+      Inquisitio.config.api_version = '2013-01-01'
+      searcher = Searcher.returns('foobar')
+      assert searcher.send(:search_url).include? "&return=foobar"
     end
 
     def test_returns_with_array_sets_variable
@@ -191,9 +204,15 @@ module Inquisitio
       assert_equal ['dog', 'cat'], searcher.params[:returns]
     end
 
-    def test_returns_with_array_gets_correct_url
+    def test_returns_with_array_gets_correct_url_for_2011
       searcher = Searcher.returns('id', 'foobar')
       assert searcher.send(:search_url).include? "&return-fields=id,foobar"
+    end
+
+    def test_returns_with_array_gets_correct_url_for_2013
+      Inquisitio.config.api_version = '2013-01-01'
+      searcher = Searcher.returns('id', 'foobar')
+      assert searcher.send(:search_url).include? "&return=id,foobar"
     end
 
     def test_returns_appends_variable
@@ -291,11 +310,18 @@ module Inquisitio
       2.times { searcher.search }
     end
 
-    def test_should_return_type_and_id_by_default
+    def test_should_return_type_and_id_by_default_for_2011
       searcher = Searcher.where('Star Wars')
       assert_equal [], searcher.params[:returns]
       assert searcher.send(:search_url).include? "&return-fields=type,id"
-      searcher.send(:search_url)
+    end
+
+    def test_should_not_specify_return_by_default_for_2013
+      Inquisitio.config.api_version = '2013-01-01'
+      searcher = Searcher.where('Star Wars')
+      assert_equal [], searcher.params[:returns]
+      refute searcher.send(:search_url).include? "&return="
+      refute searcher.send(:search_url).include? "&return-fields="
     end
 
     def test_should_return_ids

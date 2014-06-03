@@ -6,6 +6,7 @@ module Inquisitio
   class Configuration
 
     SETTINGS = [
+      :api_version,
       :search_endpoint,
       :document_endpoint,
       :default_search_size,
@@ -32,6 +33,9 @@ module Inquisitio
 
     def get_or_raise(setting)
       val = instance_variable_get("@#{setting.to_s}")
+      if setting == :api_version && val.nil?
+        val = '2011-02-01'
+      end
       val.nil?? raise(InquisitioConfigurationError.new("Configuration for #{setting} is not set")) : val
     end
   end

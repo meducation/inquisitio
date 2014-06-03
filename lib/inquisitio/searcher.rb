@@ -143,7 +143,11 @@ module Inquisitio
 
     def search_url
       @search_url ||= begin
-        return_fields = params[:returns].empty? ? [:type, :id] : params[:returns]
+        if Inquisitio.config.api_version == '2011-02-01'
+          return_fields = params[:returns].empty? ? [:type, :id] : params[:returns]
+        elsif Inquisitio.config.api_version == '2013-01-01'
+          return_fields = params[:returns].empty? ? nil : params[:returns]
+        end
 
         SearchUrlBuilder.build(
           query: params[:criteria],

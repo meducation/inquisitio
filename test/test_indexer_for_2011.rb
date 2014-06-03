@@ -1,7 +1,7 @@
 require File.expand_path('../test_helper', __FILE__)
 
 module Inquisitio
-  class IndexerTest < Minitest::Test
+  class TestIndexerFor2011 < Minitest::Test
     def setup
       @document_endpoint = 'http://my.document-endpoint.com'
       Inquisitio.config.document_endpoint = @document_endpoint
@@ -34,8 +34,14 @@ module Inquisitio
 
     def test_create_correct_index_url
       indexer = Indexer.new(@documents)
-      expected_url = 'http://my.document-endpoint.com/2011-02-01/documents/batch'
-      assert_equal expected_url, indexer.send(:batch_index_url)
+      assert_equal 'http://my.document-endpoint.com/2011-02-01/documents/batch', indexer.send(:batch_index_url)
+    end
+
+    def test_create_correct_index_url_2013
+      Inquisitio.config.api_version = '2013-01-01'
+      indexer = Indexer.new(@documents)
+      assert_equal 'http://my.document-endpoint.com/2013-01-01/documents/batch', indexer.send(:batch_index_url)
+      Inquisitio.config.api_version = nil
     end
 
     def test_create_correct_body

@@ -19,6 +19,15 @@ module Inquisitio
       assert_equal test_search_endpoint, Inquisitio.config.search_endpoint
     end
 
+    def test_api_version
+      assert_equal '2011-02-01', Inquisitio.config.api_version
+      Inquisitio.config.api_version = '2013-01-01'
+      assert_equal '2013-01-01', Inquisitio.config.api_version
+      Inquisitio.config.api_version = nil
+      assert_equal '2011-02-01', Inquisitio.config.api_version
+      Inquisitio.config.api_version = '2011-02-01'
+    end
+
     def test_search_endpoint
       assert_equal 3, Inquisitio.config.max_attempts
     end
