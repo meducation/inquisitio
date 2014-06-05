@@ -32,6 +32,12 @@ module Inquisitio
       assert_equal @found, searcher.total_entries
     end
 
+    def test_should_return_time_taken
+      searcher = Searcher.where("star_wars")
+      searcher.search
+      assert_equal 3, searcher.time_ms
+    end
+
     def test_total_entries_should_proxy
       searcher = Searcher.where("star_wars")
       searcher.search
@@ -88,13 +94,13 @@ module Inquisitio
     end
 
     def test_last_page_before
-      results = Inquisitio::Results.new([], 1, nil, nil)
+      results = Inquisitio::Results.new([], 1, nil, nil, 7)
       results.expects(total_pages: 2)
       refute results.last_page?
     end
 
     def test_last_page_equal
-      results = Inquisitio::Results.new([], 2, nil, nil)
+      results = Inquisitio::Results.new([], 2, nil, nil, 7)
       results.expects(total_pages: 2)
       assert results.last_page?
     end
