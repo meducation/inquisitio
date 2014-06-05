@@ -1,3 +1,6 @@
+1.2.2 / 2014-06-03
+[FEATURE] Return time taken by queries as time_ms on Searcher
+
 1.2.1 / 2014-06-03
 [BUGFIX] Fixed start of search offset
 

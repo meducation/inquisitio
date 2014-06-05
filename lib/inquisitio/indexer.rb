@@ -15,7 +15,7 @@ module Inquisitio
     end
 
     def index
-      Inquisitio.config.logger.info "Indexer posting to #{batch_index_url} body: #{body}"
+      Inquisitio.config.logger.info "Indexer posting to #{batch_index_url}"
       if Inquisitio.config.dry_run
         Inquisitio.config.logger.info "Skipping POST as running in dry-run mode"
       else
@@ -26,8 +26,7 @@ module Inquisitio
     private
 
     def body
-      body = @documents.map(&:to_SDF).join(", ")
-      "[#{body}]"
+      @body ||= "[#{@documents.map(&:to_SDF).join(", ")}]"
     end
 
     def batch_index_url
@@ -38,7 +37,7 @@ module Inquisitio
       response = Excon.post(batch_index_url,
                            :body => body,
                            :headers => {"Content-Type" =>"application/json"})
-      Inquisitio.config.logger.info "Response - status: #{response.status} body: #{response.body}"
+      Inquisitio.config.logger.info "Response - status: #{response.status}"
       raise InquisitioError.new("Index failed with status code: #{response.status} Message: #{response.body}") unless response.status == 200
       response.body
     end    

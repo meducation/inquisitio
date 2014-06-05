@@ -1,13 +1,11 @@
 module Inquisitio
   class Results < Array
-    def initialize(items, current_page, results_per_page, total_count)
+    def initialize(items, current_page, results_per_page, total_count, time_ms)
       super(items)
-      @current_page     = current_page
-      @results_per_page = results_per_page
-      @total_count      = total_count
+      @current_page, @results_per_page, @total_count, @time_ms = current_page, results_per_page, total_count, time_ms
     end
 
-    attr_reader :total_count, :results_per_page, :current_page
+    attr_reader :total_count, :results_per_page, :current_page, :time_ms
     alias_method :total_entries, :total_count
     alias_method :limit_value, :results_per_page
 
