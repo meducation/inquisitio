@@ -6,6 +6,7 @@ module Inquisitio
       super
       @search_endpoint = 'http://my.search-endpoint.com'
       Inquisitio.config.search_endpoint = @search_endpoint
+      Inquisitio.config.api_version = nil
       @result_1 = {'data' => {'id' => ['1'], 'title' => ["Foobar"], 'type' => ["Cat"]}}
       @result_2 = {'data' => {'id' => ['2'], 'title' => ["Foobar"], 'type' => ["Cat"]}}
       @result_3 = {'data' => {'id' => ['20'], 'title' => ["Foobar2"], 'type' => ["Module_Dog"]}}
@@ -32,10 +33,21 @@ module Inquisitio
       assert_equal @found, searcher.total_entries
     end
 
-    def test_should_return_time_taken
+    def test_should_return_time_taken_for_2011
       searcher = Searcher.where("star_wars")
       searcher.search
       assert_equal 3, searcher.time_ms
+    end
+
+    def test_should_return_time_taken_for_2013
+      Inquisitio.config.api_version = '2013-01-01'
+      body = "{\"status\": {\"rid\" : \"u9aP4eYo8gIK0csK\", \"time-ms\": 4}, \"hits\" : {\"#{@found}\": 33, \"#{@start}\": 0, \"hit\":#{@expected_results.to_json} }}"
+      Excon.stubs.clear
+      Excon.stub({}, {body: body, status: 200})
+
+      searcher = Searcher.where("star_wars")
+      searcher.search
+      assert_equal 4, searcher.time_ms
     end
 
     def test_total_entries_should_proxy

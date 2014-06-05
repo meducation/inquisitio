@@ -125,11 +125,13 @@ module Inquisitio
       response = Excon.get(search_url)
       raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
       body = JSON.parse(response.body)
+      time_ms = body['info']['time-ms'] if Inquisitio.config.api_version == '2011-02-01'
+      time_ms = body['status']['time-ms'] if Inquisitio.config.api_version == '2013-01-01'
       @results = Results.new(body['hits']['hit'],
         params[:page],
         params[:per],
         body['hits']['found'],
-        body['info']['time-ms'])
+        time_ms)
     rescue => e
       @failed_attempts += 1
       Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")

@@ -1,4 +1,7 @@
-1.2.2 / 2014-06-03
+1.2.3 / 2014-06-05
+[FEATURE] Return time taken by queries as time_ms on Searcher for 2013-01-01 api
+
+1.2.2 / 2014-06-05
 [FEATURE] Return time taken by queries as time_ms on Searcher
 
 1.2.1 / 2014-06-03
