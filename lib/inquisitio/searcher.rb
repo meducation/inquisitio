@@ -1,5 +1,4 @@
 require 'excon'
-require "deep_clone"
 
 module Inquisitio
   class Searcher
@@ -164,7 +163,12 @@ module Inquisitio
     end
 
     def clone
-      Searcher.new(DeepClone.clone(params)) do |s|
+      params_clone = JSON.parse(params.to_json)
+      symbolised_params = params_clone.inject({}) do |h, (key, value)|
+        h[key.to_sym] = value
+        h
+      end
+      Searcher.new(symbolised_params) do |s|
         yield(s) if block_given?
       end
     end
