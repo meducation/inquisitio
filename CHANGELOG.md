@@ -1,3 +1,6 @@
+1.2.4 / 2014-06-12
+[FEATURE] Remove deep clone to allow inquisitio on jRuby
+
 1.2.3 / 2014-06-05
 [FEATURE] Return time taken by queries as time_ms on Searcher for 2013-01-01 api
 
