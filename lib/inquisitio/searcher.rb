@@ -16,7 +16,8 @@ module Inquisitio
         per: 10,
         page: 1,
         returns: [],
-        with: {}
+        with: {},
+        sort: {}
       }
       @failed_attempts = 0
 
@@ -109,6 +110,12 @@ module Inquisitio
       end
     end
 
+    def sort(value)
+      clone do |s|
+        s.params[:sort].merge!(value)
+      end
+    end
+
     # Proxy everything to the results so that this this class
     # transparently acts as an Array.
     def method_missing(name, *args, &block)
@@ -157,6 +164,7 @@ module Inquisitio
           arguments: params[:with],
           size: params[:per],
           start: params[:per] * (params[:page] - 1),
+          sort: params[:sort],
           return_fields: return_fields
         )
       end
