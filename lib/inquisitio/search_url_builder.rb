@@ -12,6 +12,7 @@ module Inquisitio
       @return_fields = options[:return_fields]
       @size = options[:size] || Inquisitio.config.default_search_size
       @start = options[:start] || 0
+      @sort = options[:sort] || {}
     end
 
     def build
@@ -22,6 +23,7 @@ module Inquisitio
       components << arguments
       components << "&size=#{@size}" unless @arguments[:size]
       components << "&start=#{@start}" unless @arguments[:start] || @start == 0 || @start == '0'
+      components << '&sort=' + @sort.map {|k,v| "#{k}%20#{v}"}.join(',') unless @sort.empty?
       components.join("")
     end
 

@@ -1,3 +1,6 @@
+1.3.0 / 2014-11-22
+[FEATURE] Added sorting option to searcher
+
 1.2.4 / 2014-06-12
 [FEATURE] Remove deep clone to allow inquisitio on jRuby
 

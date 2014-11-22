@@ -4,6 +4,7 @@ module Inquisitio
 
   class Elephant
     attr_accessor :id, :name
+
     def initialize(_id, _name)
       @id, @name = _id, _name
     end
@@ -11,6 +12,7 @@ module Inquisitio
 
   class Giraffe
     attr_accessor :id, :name
+
     def initialize(_id, _name)
       @id, @name = _id, _name
     end
@@ -227,12 +229,12 @@ module Inquisitio
 
     def test_with_saves_variable
       searcher = Searcher.with(foo: 'bar')
-      assert_equal({foo:'bar'}, searcher.params[:with])
+      assert_equal({foo: 'bar'}, searcher.params[:with])
     end
 
     def test_with_appends_to_variable
       searcher = Searcher.with(foo: 'bar').with(cat: 'dog')
-      assert_equal({foo:'bar', cat:'dog'}, searcher.params[:with])
+      assert_equal({foo: 'bar', cat: 'dog'}, searcher.params[:with])
     end
 
     def test_with_gets_correct_url
@@ -258,7 +260,7 @@ module Inquisitio
     end
 
     def test_search_raises_exception_when_excon_exception_thrown
-      Excon.stub({}, lambda { |_| raise Excon::Errors::Timeout})
+      Excon.stub({}, lambda { |_| raise Excon::Errors::Timeout })
 
       searcher = Searcher.where('Star Wars')
       searcher.instance_variable_set(:@failed_attempts, 3)
@@ -280,21 +282,21 @@ module Inquisitio
     def test_that_iterating_calls_results
       searcher = Searcher.where("star_wars")
       searcher.expects(results: [])
-      searcher.each { }
+      searcher.each {}
     end
 
     def test_that_iterating_calls_each
       searcher = Searcher.where("star_wars")
       searcher.search
       searcher.send(:results).expects(:each)
-      searcher.each { }
+      searcher.each {}
     end
 
     def test_that_select_calls_each
       searcher = Searcher.where("star_wars")
       searcher.search
       searcher.send(:results).expects(:select)
-      searcher.select { }
+      searcher.select {}
     end
 
     def test_search_should_set_results
@@ -331,7 +333,7 @@ module Inquisitio
 
     def test_should_return_ids
       searcher = Searcher.where('Star Wars')
-      assert_equal [1,2,20], searcher.ids
+      assert_equal [1, 2, 20], searcher.ids
     end
 
     def test_should_return_records_in_results_order
@@ -339,19 +341,38 @@ module Inquisitio
       expected_2 = Giraffe.new(20, 'Wolf')
       expected_3 = Elephant.new(1, 'Gobbolino')
 
-      Elephant.expects(:where).with(id: ['2','1']).returns([expected_3, expected_1])
+      Elephant.expects(:where).with(id: ['2', '1']).returns([expected_3, expected_1])
       Giraffe.expects(:where).with(id: ['20']).returns([expected_2])
 
       searcher = Searcher.new
       result = [
-          {'data' => {'id' => ['2'],  'type' => ['Inquisitio_Elephant']}},
+          {'data' => {'id' => ['2'], 'type' => ['Inquisitio_Elephant']}},
           {'data' => {'id' => ['20'], 'type' => ['Inquisitio_Giraffe']}},
-          {'data' => {'id' => ['1'],  'type' => ['Inquisitio_Elephant']}}
+          {'data' => {'id' => ['1'], 'type' => ['Inquisitio_Elephant']}}
       ]
       searcher.instance_variable_set("@results", result)
       expected_records = [expected_1, expected_2, expected_3]
       actual_records = searcher.records
       assert_equal expected_records, actual_records
     end
+
+    def test_should_sort_field_ascending
+      searcher = Searcher.where('Star Wars').sort(year: :asc)
+      search_url = searcher.send(:search_url)
+      assert search_url.include?('sort=year%20asc'), "search url should include sort parameter:\n#{search_url}"
+    end
+
+    def test_should_sort_field_descending
+      searcher = Searcher.where('Star Wars').sort(year: :desc)
+      search_url = searcher.send(:search_url)
+      assert search_url.include?('sort=year%20desc'), "search url should include sort parameter:\n#{search_url}"
+    end
+
+    def test_should_sort_multiple_fields
+      searcher = Searcher.where('Star Wars').sort(year: :desc, foo: :asc)
+      search_url = searcher.send(:search_url)
+      assert search_url.include?('sort=year%20desc,foo%20asc'), "search url should include sort parameter:\n#{search_url}"
+    end
+
   end
 end
