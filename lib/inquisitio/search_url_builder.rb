@@ -24,7 +24,7 @@ module Inquisitio
       components << "&size=#{@size}" unless @arguments[:size]
       components << "&start=#{@start}" unless @arguments[:start] || @start == 0 || @start == '0'
       components << '&sort=' + @sort.map {|k,v| "#{k}%20#{v}"}.join(',') unless @sort.empty?
-      components.join("")
+      components.join('')
     end
 
     private
@@ -50,7 +50,7 @@ module Inquisitio
         elsif value.is_a?(Array)
           "(or #{value.map {|v| "#{sanitise(key)}:'#{sanitise(v)}'" }.join(" ")})"
         else
-          raise InquisitioError.new("Filter values must be strings or arrays.")
+          raise InquisitioError.new('Filter values must be strings or arrays.')
         end
       end
 
@@ -66,7 +66,7 @@ module Inquisitio
     end
 
     def return_fields_query_string
-      return "" if @return_fields.nil?
+      return '' if @return_fields.nil?
       if Inquisitio.config.api_version == '2011-02-01'
         "&return-fields=#{URI::encode(@return_fields.join(',').gsub('\'',''))}"
       elsif Inquisitio.config.api_version == '2013-01-01'
@@ -75,7 +75,7 @@ module Inquisitio
     end
 
     def arguments
-      return "" if @arguments.nil?
+      return '' if @arguments.nil?
       @arguments.map{|key,value| "&#{key.to_s.gsub('\'','')}=#{value.to_s.gsub('\'','')}"}.join("")
     end
 

@@ -1,7 +1,7 @@
 require File.expand_path('../test_helper', __FILE__)
 
 module Inquisitio
-  class TestIndexerFor2011 < Minitest::Test
+  class IndexerFor2011Test < Minitest::Test
     def setup
       @document_endpoint = 'http://my.document-endpoint.com'
       Inquisitio.config.document_endpoint = @document_endpoint

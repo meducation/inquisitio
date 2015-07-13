@@ -2,7 +2,7 @@ require File.expand_path('../test_helper', __FILE__)
 require 'json'
 
 module Inquisitio
-  class TestDocument < Minitest::Test
+  class DocumentTest < Minitest::Test
 
     def test_initialization_sets_type
       document = Document.new('add', '12345', 1, {:title => 'The Title', :author => 'The Author'})

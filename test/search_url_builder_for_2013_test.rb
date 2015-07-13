@@ -1,7 +1,7 @@
 require File.expand_path('../test_helper', __FILE__)
 
 module Inquisitio
-  class TestSearchUrlBuilderFor2013 < Minitest::Test
+  class SearchUrlBuilderFor2013Test < Minitest::Test
     def setup
       super
       @search_endpoint = 'http://my.search-endpoint.com'

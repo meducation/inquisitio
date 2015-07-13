@@ -1,3 +1,6 @@
+1.3.1 / 2015-07-13
+[BUGFIX] Fixed failing tests
+
 1.3.0 / 2014-11-22
 [FEATURE] Added sorting option to searcher
 

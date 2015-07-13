@@ -45,14 +45,14 @@ module Inquisitio
       end
 
       objs = klasses.map { |klass_name, ids|
-        klass_name = klass_name.gsub("_", "::")
+        klass_name = klass_name.gsub('_', '::')
         klass = klass_name.constantize
         klass.where(id: ids)
       }.flatten
 
       results.each do |result|
         klass_name = result['data']['type'].first
-        klass_name = klass_name.gsub("_", "::")
+        klass_name = klass_name.gsub('_', '::')
         id = result['data']['id'].first
         record = objs.select { |r|
           r.class.name == klass_name && r.id == id.to_i
@@ -69,6 +69,7 @@ module Inquisitio
           s.params[:criteria] += value
         elsif value.is_a?(Hash)
           value.each do |k, v|
+            k = k.to_sym
             s.params[:filters][k] ||= []
             if v.is_a?(Array)
               s.params[:filters][k] = v
@@ -146,7 +147,7 @@ module Inquisitio
         Inquisitio.config.logger.error("Retrying search #{@failed_attempts}/#{Inquisitio.config.max_attempts}")
         results
       else
-        raise InquisitioError.new("Exception performing search")
+        raise InquisitioError.new('Exception performing search')
       end
     end
 
@@ -171,7 +172,7 @@ module Inquisitio
     end
 
     def clone
-      params_clone = JSON.parse(params.to_json)
+      params_clone = JSON.parse(params.to_json, symbolize_names: true)
       symbolised_params = params_clone.inject({}) do |h, (key, value)|
         h[key.to_sym] = value
         h
