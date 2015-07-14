@@ -1,3 +1,6 @@
+1.4.0 / 2015-07-14
+[FEATURE] Searcher now supports #options() to allow setting of the q.options parameter in the 2013 api
+
 1.3.1 / 2015-07-13
 [BUGFIX] Fixed failing tests
 
