@@ -7,7 +7,7 @@ module Inquisitio
       Searcher.new.send(name, *args)
     end
 
-    attr_reader :params
+    attr_reader :params, :options
 
     def initialize(params = nil)
       @params = params || {
@@ -17,7 +17,8 @@ module Inquisitio
         page: 1,
         returns: [],
         with: {},
-        sort: {}
+        sort: {},
+        q_options: {}
       }
       @failed_attempts = 0
 
@@ -80,6 +81,12 @@ module Inquisitio
         else
           s.params[:criteria] << value
         end
+      end
+    end
+
+    def options(value)
+      clone do |s|
+        s.params[:q_options] = value
       end
     end
 
@@ -166,6 +173,7 @@ module Inquisitio
           size: params[:per],
           start: params[:per] * (params[:page] - 1),
           sort: params[:sort],
+          q_options: params[:q_options],
           return_fields: return_fields
         )
       end

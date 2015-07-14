@@ -98,18 +98,21 @@ module Inquisitio
 
     def test_where_gets_correct_url
       searcher = Searcher.where('Star Wars')
-      assert searcher.send(:search_url).include? 'q=Star%20Wars'
+      search_url = searcher.send(:search_url)
+      assert(search_url.include?('q=Star+Wars'), "Search url should include search term: #{search_url}")
     end
 
     def test_where_gets_correct_url_with_filters_for_2011
       searcher = Searcher.where(title: 'Star Wars')
-      assert searcher.send(:search_url).include? "bq=(and%20(or%20title:'Star%20Wars'))"
+      search_url = searcher.send(:search_url)
+      assert(search_url.include?('bq=%28and+%28or+title%3A%27Star+Wars%27%29%29'), "Search url should include query: #{search_url}")
     end
 
     def test_where_gets_correct_url_with_filters_for_2013
       Inquisitio.config.api_version = '2013-01-01'
       searcher = Searcher.where(title: 'Star Wars')
-      assert searcher.send(:search_url).include? "q=(and%20(or%20title:'Star%20Wars'))&q.parser=structured"
+      search_url = searcher.send(:search_url)
+      assert(search_url.include?('q=%28and+%28or+title%3A%27Star+Wars%27%29%29&q.parser=structured'), "Search url should include query: #{search_url}")
     end
 
     def test_where_works_with_array_in_a_hash
@@ -220,13 +223,15 @@ module Inquisitio
 
     def test_returns_with_array_gets_correct_url_for_2011
       searcher = Searcher.returns('id', 'foobar')
-      assert searcher.send(:search_url).include? '&return-fields=id,foobar'
+      search_url = searcher.send(:search_url)
+      assert(search_url.include?('&return-fields=id%2Cfoobar'), "Search url should include return fields: #{search_url}")
     end
 
     def test_returns_with_array_gets_correct_url_for_2013
       Inquisitio.config.api_version = '2013-01-01'
       searcher = Searcher.returns('id', 'foobar')
-      assert searcher.send(:search_url).include? '&return=id,foobar'
+      search_url = searcher.send(:search_url)
+      assert(search_url.include?('&return=id%2Cfoobar'), "Search url should include return: #{search_url}")
     end
 
     def test_returns_appends_variable
@@ -327,7 +332,8 @@ module Inquisitio
     def test_should_return_type_and_id_by_default_for_2011
       searcher = Searcher.where('Star Wars')
       assert_equal [], searcher.params[:returns]
-      assert searcher.send(:search_url).include? '&return-fields=type,id'
+      search_url = searcher.send(:search_url)
+      assert(search_url.include?('&return-fields=type%2Cid'), "Search url should include return for type and id: #{search_url}")
     end
 
     def test_should_not_specify_return_by_default_for_2013
@@ -379,6 +385,25 @@ module Inquisitio
       searcher = Searcher.where('Star Wars').sort(year: :desc, foo: :asc)
       search_url = searcher.send(:search_url)
       assert search_url.include?('sort=year%20desc,foo%20asc'), "search url should include sort parameter:\n#{search_url}"
+    end
+
+    def test_should_default_to_empty_options
+      searcher = Searcher.where('Star Wars')
+      search_url = searcher.send(:search_url)
+      refute search_url.include?('q.options='), "search url should not include q.options parameter:\n#{search_url}"
+    end
+
+    def test_should_support_options
+      searcher = Searcher.where('Star Wars').options(fields: %w(title^2 plot^0.5))
+      search_url = searcher.send(:search_url)
+      assert search_url.include?('q.options=%7Bfields%3A%5B%22title%5E2%22%2C+%22plot%5E0.5%22%5D%7D'), "search url should include q.options parameter:\n#{search_url}"
+    end
+
+    def test_options_doesnt_mutate_searcher
+      searcher = Searcher.where('star wars')
+      searcher.options(fields: %w(title^2.0 plot^0.5))
+      search_url = searcher.send(:search_url)
+      refute search_url.include?('q.options='), "search url should not include q.options parameter:\n#{search_url}"
     end
 
   end
