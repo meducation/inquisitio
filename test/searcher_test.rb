@@ -406,5 +406,31 @@ module Inquisitio
       refute search_url.include?('q.options='), "search url should not include q.options parameter:\n#{search_url}"
     end
 
+    def test_should_default_to_no_expressions
+      searcher = Searcher.where('Star Wars')
+      search_url = searcher.send(:search_url)
+      refute search_url =~ /(\?|&)expr\./, "search url should not include any expr. parameters:\n#{search_url}"
+    end
+
+    def test_expressions_should_not_mutate_searcher
+      searcher = Searcher.where('star wars')
+      searcher.expressions(rank1: 'log10(clicks)*_score')
+      search_url = searcher.send(:search_url)
+      refute search_url =~ /(\?|&)expr\.rank1=log10%28clicks%29%2A_score(&|$)/, "search url should not include rank1 expr. parameter:\n#{search_url}"
+      refute search_url =~ /(\?|&)expr\./, "search url should not include any expr. parameters:\n#{search_url}"
+    end
+
+    def test_should_add_one_expression_to_search
+      searcher = Searcher.where('star wars').expressions(rank1: 'log10(clicks)*_score')
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)expr\.rank1=log10%28clicks%29%2A_score(&|$)/, "search url should include expr.rank1 parameter:\n#{search_url}"
+    end
+
+    def test_should_add_more_than_one_expression_to_search
+      searcher = Searcher.where('star wars').expressions(rank1: 'log10(clicks)*_score', rank2: 'cos( _score)')
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)expr\.rank1=log10%28clicks%29%2A_score(&|$)/, "search url should include expr.rank1 parameter:\n#{search_url}"
+      assert search_url =~ /(\?|&)expr\.rank2=cos%28\+_score%29(&|$)/, "search url should include expr.rank1 parameter:\n#{search_url}"
+    end
   end
 end

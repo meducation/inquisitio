@@ -18,7 +18,8 @@ module Inquisitio
         returns: [],
         with: {},
         sort: {},
-        q_options: {}
+        q_options: {},
+        expressions: {}
       }
       @failed_attempts = 0
 
@@ -87,6 +88,12 @@ module Inquisitio
     def options(value)
       clone do |s|
         s.params[:q_options] = value
+      end
+    end
+
+    def expressions(value)
+      clone do |s|
+        s.params[:expressions] = value
       end
     end
 
@@ -174,6 +181,7 @@ module Inquisitio
           start: params[:per] * (params[:page] - 1),
           sort: params[:sort],
           q_options: params[:q_options],
+          expressions: params[:expressions],
           return_fields: return_fields
         )
       end

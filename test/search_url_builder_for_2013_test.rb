@@ -112,5 +112,11 @@ module Inquisitio
       expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&q.options=%7Bfields%3A%5B%22title%5E2.0%22%2C+%22plot%5E0.5%22%5D%7D&size=10'
       assert_equal expected_url, url
     end
+
+    def test_create_search_url_with_expressions
+      url = SearchUrlBuilder.build(query: ['Star Wars'], expressions: {rank1: 'log10(clicks)*_score', rank2: 'cos( _score)'})
+      expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&expr.rank1=log10%28clicks%29%2A_score&expr.rank2=cos%28+_score%29&size=10'
+      assert_equal expected_url, url
+    end
   end
 end

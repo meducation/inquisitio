@@ -9,6 +9,7 @@ module Inquisitio
       @query = options[:query]
       @filters = options[:filters] || {}
       @q_options = options[:q_options] || {}
+      @expressions = options[:expressions] || {}
       @arguments = options[:arguments] || {}
       @return_fields = options[:return_fields]
       @size = options[:size] || Inquisitio.config.default_search_size
@@ -23,6 +24,9 @@ module Inquisitio
       components << return_fields_query_string
       components << arguments
       components << '&q.options=' + CGI::escape(@q_options.map { |k, v| "{#{k}:#{v}}" }.join('')) unless @q_options.empty?
+      @expressions.each do |name,expression|
+        components << "&expr.#{name}=" + CGI::escape(expression)
+      end
       components << "&size=#{@size}" unless @arguments[:size]
       components << "&start=#{@start}" unless @arguments[:start] || @start == 0 || @start == '0'
       components << '&sort=' + @sort.map { |k, v| "#{k}%20#{v}" }.join(',') unless @sort.empty?
