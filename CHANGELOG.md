@@ -1,5 +1,6 @@
 1.5.0 / 2015-07-17
 [FEATURE] Searcher now supports q.parser option as Search#parser
+[BUGFIX] Searcher no longer removes ' from simple queries
 
 1.4.1 / 2015-07-15
 [FEATURE] Searcher now supports #expressions(hash) which maps to expr. expressions in the 2013 api

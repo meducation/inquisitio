@@ -40,7 +40,7 @@ module Inquisitio
 
     private
     def simple_query
-      "q=#{CGI::escape(sanitise(@query.first)).gsub('&', '%26')}"
+      "q=#{CGI::escape(@query.first)}"
     end
 
     def boolean_query
