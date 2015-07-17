@@ -15,22 +15,27 @@ module Inquisitio
       @size = options[:size] || Inquisitio.config.default_search_size
       @start = options[:start] || 0
       @sort = options[:sort] || {}
+      @q_parser = options[:q_parser] || (is_simple? ? nil : :structured)
     end
 
     def build
       components = [url_root]
-      is_simple = @filters.empty? && Array(@query).size == 1
-      components << (is_simple ? simple_query : boolean_query)
+      components << (is_simple? ? simple_query : boolean_query)
+      components << "&q.parser=#{@q_parser}" if @q_parser && Inquisitio.config.api_version == '2013-01-01'
       components << return_fields_query_string
       components << arguments
-      components << '&q.options=' + CGI::escape(@q_options.map { |k, v| "{#{k}:#{v}}" }.join('')) unless @q_options.empty?
-      @expressions.each do |name,expression|
+      components << '&q.options=' + CGI::escape(@q_options.to_json) unless @q_options.empty?
+      @expressions.each do |name, expression|
         components << "&expr.#{name}=" + CGI::escape(expression)
       end
       components << "&size=#{@size}" unless @arguments[:size]
       components << "&start=#{@start}" unless @arguments[:start] || @start == 0 || @start == '0'
       components << '&sort=' + @sort.map { |k, v| "#{k}%20#{v}" }.join(',') unless @sort.empty?
       components.join('')
+    end
+
+    def is_simple?
+      @filters.empty? && Array(@query).size == 1
     end
 
     private
@@ -63,7 +68,7 @@ module Inquisitio
       if Inquisitio.config.api_version == '2011-02-01'
         "bq=#{CGI::escape("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
       elsif Inquisitio.config.api_version == '2013-01-01'
-        "q=#{CGI::escape("(and #{query_blocks.join(' ')})").gsub('&', '%26')}&q.parser=structured"
+        "q=#{CGI::escape("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
       end
     end
 

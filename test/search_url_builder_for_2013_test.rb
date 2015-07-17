@@ -109,7 +109,13 @@ module Inquisitio
 
     def test_create_search_url_with_query_options
       url = SearchUrlBuilder.build(query: ['Star Wars'], q_options: {fields: %w(title^2.0 plot^0.5)})
-      expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&q.options=%7Bfields%3A%5B%22title%5E2.0%22%2C+%22plot%5E0.5%22%5D%7D&size=10'
+      expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&q.options=%7B%22fields%22%3A%5B%22title%5E2.0%22%2C%22plot%5E0.5%22%5D%7D&size=10'
+      assert_equal expected_url, url
+    end
+
+    def test_create_search_url_with_query_defaultoperator_option
+      url = SearchUrlBuilder.build(query: ['Star Wars'], q_options: {defaultOperator: 'or'})
+      expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&q.options=%7B%22defaultOperator%22%3A%22or%22%7D&size=10'
       assert_equal expected_url, url
     end
 
@@ -118,5 +124,18 @@ module Inquisitio
       expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&expr.rank1=log10%28clicks%29%2A_score&expr.rank2=cos%28+_score%29&size=10'
       assert_equal expected_url, url
     end
+
+    def test_create_url_with_parser
+      url = SearchUrlBuilder.build(query: ['Star Wars'], q_parser: :structured)
+      expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&q.parser=structured&size=10'
+      assert_equal expected_url, url
+    end
+
+    def test_create_url_with_overridden_parser
+      url = SearchUrlBuilder.build(query: ['Star Wars', 'Star Trek'], q_parser: :simple)
+      expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=%28and+%28or+%27Star+Wars%27+%27Star+Trek%27%29%29&q.parser=simple&size=10'
+      assert_equal expected_url, url
+    end
+
   end
 end

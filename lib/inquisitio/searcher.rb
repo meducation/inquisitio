@@ -97,6 +97,12 @@ module Inquisitio
       end
     end
 
+    def parser(value)
+      clone do |s|
+        s.params[:q_parser] = value
+      end
+    end
+
     def per(value)
       clone do |s|
         s.params[:per] = value.to_i
@@ -182,6 +188,7 @@ module Inquisitio
           sort: params[:sort],
           q_options: params[:q_options],
           expressions: params[:expressions],
+          q_parser: params[:q_parser],
           return_fields: return_fields
         )
       end

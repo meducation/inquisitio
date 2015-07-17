@@ -396,7 +396,13 @@ module Inquisitio
     def test_should_support_options
       searcher = Searcher.where('Star Wars').options(fields: %w(title^2 plot^0.5))
       search_url = searcher.send(:search_url)
-      assert search_url.include?('q.options=%7Bfields%3A%5B%22title%5E2%22%2C+%22plot%5E0.5%22%5D%7D'), "search url should include q.options parameter:\n#{search_url}"
+      assert search_url.include?('q.options=%7B%22fields%22%3A%5B%22title%5E2%22%2C%22plot%5E0.5%22%5D%7D'), "search url should include q.options parameter:\n#{search_url}"
+    end
+
+    def test_should_support_operator_in_options
+      searcher = Searcher.where('Star Wars').options(defaultOperator: 'or')
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)q.options=%7B%22defaultOperator%22%3A%22or%22%7D(&|$)/, "search url should include q.options parameter:\n#{search_url}"
     end
 
     def test_options_doesnt_mutate_searcher
@@ -431,6 +437,20 @@ module Inquisitio
       search_url = searcher.send(:search_url)
       assert search_url =~ /(\?|&)expr\.rank1=log10%28clicks%29%2A_score(&|$)/, "search url should include expr.rank1 parameter:\n#{search_url}"
       assert search_url =~ /(\?|&)expr\.rank2=cos%28\+_score%29(&|$)/, "search url should include expr.rank1 parameter:\n#{search_url}"
+    end
+
+    def test_should_support_structured_parser
+      Inquisitio.config.api_version = '2013-01-01'
+      searcher = Searcher.where('star wars').parser(:structured)
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)q\.parser=structured(&|$)/, "search url should include q.parser parameter:\n#{search_url}"
+    end
+
+    def test_should_support_any_parser
+      Inquisitio.config.api_version = '2013-01-01'
+      searcher = Searcher.where('star wars').parser(:foo_bar_baz)
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)q\.parser=foo_bar_baz(&|$)/, "search url should include q.parser parameter:\n#{search_url}"
     end
   end
 end
