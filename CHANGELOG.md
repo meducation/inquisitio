@@ -1,3 +1,6 @@
+2.0.0 / 2015-07-21
+[FEATURE] Removed support for 2011-02-01 api
+
 1.5.0 / 2015-07-17
 [FEATURE] Searcher now supports q.parser option as Search#parser
 [BUGFIX] Searcher no longer removes ' from simple queries

@@ -7,11 +7,11 @@ module Inquisitio
 
     def initialize(options = {})
       @query = options[:query]
-      @filters = options[:filters] || {}
+      @named_fields = options[:named_fields] || {}
       @q_options = options[:q_options] || {}
       @expressions = options[:expressions] || {}
       @arguments = options[:arguments] || {}
-      @return_fields = options[:return_fields]
+      @return_fields = options[:return_fields] || []
       @size = options[:size] || Inquisitio.config.default_search_size
       @start = options[:start] || 0
       @sort = options[:sort] || {}
@@ -22,7 +22,7 @@ module Inquisitio
       components = [url_root]
       components << (is_simple? ? simple_query : boolean_query)
       components << "&q.parser=#{@q_parser}" if @q_parser && Inquisitio.config.api_version == '2013-01-01'
-      components << return_fields_query_string
+      components << "&return=#{CGI::escape(@return_fields.join(',').gsub('\'', ''))}" unless @return_fields.empty?
       components << arguments
       components << '&q.options=' + CGI::escape(@q_options.to_json) unless @q_options.empty?
       @expressions.each do |name, expression|
@@ -35,7 +35,7 @@ module Inquisitio
     end
 
     def is_simple?
-      @filters.empty? && Array(@query).size == 1
+      @named_fields.empty? && Array(@query).size == 1
     end
 
     private
@@ -55,7 +55,7 @@ module Inquisitio
         query_blocks << "(or #{@query.map { |q| "'#{sanitise(q)}'" }.join(' ')})"
       end
 
-      query_blocks += @filters.map do |key, value|
+      query_blocks += @named_fields.map do |key, value|
         if value.is_a?(String)
           "#{sanitise(key)}:'#{sanitise(value)}'"
         elsif value.is_a?(Array)
@@ -65,25 +65,13 @@ module Inquisitio
         end
       end
 
-      if Inquisitio.config.api_version == '2011-02-01'
-        "bq=#{CGI::escape("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
-      elsif Inquisitio.config.api_version == '2013-01-01'
-        "q=#{CGI::escape("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
-      end
+      "q=#{CGI::escape("(and #{query_blocks.join(' ')})").gsub('&', '%26')}"
     end
 
     def sanitise(value)
       value.to_s.gsub('\'', '')
     end
 
-    def return_fields_query_string
-      return '' if @return_fields.nil?
-      if Inquisitio.config.api_version == '2011-02-01'
-        "&return-fields=#{CGI::escape(@return_fields.join(',').gsub('\'', ''))}"
-      elsif Inquisitio.config.api_version == '2013-01-01'
-        "&return=#{CGI::escape(@return_fields.join(',').gsub('\'', ''))}"
-      end
-    end
 
     def arguments
       return '' if @arguments.nil?

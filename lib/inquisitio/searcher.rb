@@ -11,15 +11,14 @@ module Inquisitio
 
     def initialize(params = nil)
       @params = params || {
-        criteria: [],
-        filters: {},
-        per: 10,
-        page: 1,
-        returns: [],
-        with: {},
-        sort: {},
-        q_options: {},
-        expressions: {}
+          criteria: [],
+          named_fields: {},
+          per: 10,
+          page: 1,
+          returns: [],
+          sort: {},
+          q_options: {},
+          expressions: {}
       }
       @failed_attempts = 0
 
@@ -72,11 +71,11 @@ module Inquisitio
         elsif value.is_a?(Hash)
           value.each do |k, v|
             k = k.to_sym
-            s.params[:filters][k] ||= []
+            s.params[:named_fields][k] ||= []
             if v.is_a?(Array)
-              s.params[:filters][k] = v
+              s.params[:named_fields][k] = v
             else
-              s.params[:filters][k] << v
+              s.params[:named_fields][k] << v
             end
           end
         else
@@ -125,12 +124,6 @@ module Inquisitio
       end
     end
 
-    def with(value)
-      clone do |s|
-        s.params[:with].merge!(value)
-      end
-    end
-
     def sort(value)
       clone do |s|
         s.params[:sort].merge!(value)
@@ -152,13 +145,12 @@ module Inquisitio
       response = Excon.get(search_url)
       raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
       body = JSON.parse(response.body)
-      time_ms = body['info']['time-ms'] if Inquisitio.config.api_version == '2011-02-01'
-      time_ms = body['status']['time-ms'] if Inquisitio.config.api_version == '2013-01-01'
+      time_ms = body['status']['time-ms']
       @results = Results.new(body['hits']['hit'],
-        params[:page],
-        params[:per],
-        body['hits']['found'],
-        time_ms)
+                             params[:page],
+                             params[:per],
+                             body['hits']['found'],
+                             time_ms)
     rescue => e
       @failed_attempts += 1
       Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
@@ -173,23 +165,16 @@ module Inquisitio
 
     def search_url
       @search_url ||= begin
-        if Inquisitio.config.api_version == '2011-02-01'
-          return_fields = params[:returns].empty? ? [:type, :id] : params[:returns]
-        elsif Inquisitio.config.api_version == '2013-01-01'
-          return_fields = params[:returns].empty? ? nil : params[:returns]
-        end
-
         SearchUrlBuilder.build(
-          query: params[:criteria],
-          filters: params[:filters],
-          arguments: params[:with],
-          size: params[:per],
-          start: params[:per] * (params[:page] - 1),
-          sort: params[:sort],
-          q_options: params[:q_options],
-          expressions: params[:expressions],
-          q_parser: params[:q_parser],
-          return_fields: return_fields
+            query: params[:criteria],
+            named_fields: params[:named_fields],
+            size: params[:per],
+            start: params[:per] * (params[:page] - 1),
+            sort: params[:sort],
+            q_options: params[:q_options],
+            expressions: params[:expressions],
+            q_parser: params[:q_parser],
+            return_fields: params[:returns]
         )
       end
     end

@@ -34,7 +34,7 @@ module Inquisitio
     def get_or_raise(setting)
       val = instance_variable_get("@#{setting.to_s}")
       if setting == :api_version && val.nil?
-        val = '2011-02-01'
+        val = '2013-01-01'
       end
       val.nil?? raise(InquisitioConfigurationError.new("Configuration for #{setting} is not set")) : val
     end

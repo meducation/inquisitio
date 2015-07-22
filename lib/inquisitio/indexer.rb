@@ -26,7 +26,7 @@ module Inquisitio
     private
 
     def body
-      @body ||= "[#{@documents.map(&:to_SDF).join(", ")}]"
+      @body ||= "[#{@documents.map(&:to_sdf).join(", ")}]"
     end
 
     def batch_index_url

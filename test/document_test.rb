@@ -25,25 +25,17 @@ module Inquisitio
       assert_equal fields, document.fields
     end
 
-    def test_create_valid_SDF_json_for_2011
-      expected_SDF = '{ "type": "add", "id": "12345", "version": 1, "lang": "en", "fields": { "title": "The Title", "author": "The Author" } }'
-      document = Document.new('add', '12345', 1, {:title => 'The Title', :author => 'The Author'})
-      assert_equal JSON.parse(expected_SDF).to_json, JSON.parse(document.to_SDF).to_json
-    end
-
-    def test_create_valid_SDF_json_for_2013
-      Inquisitio.config.api_version = '2013-01-01'
+    def test_create_valid_SDF_json
       expected_SDF = '{ "type": "add", "id": "12345", "fields": { "title": "The Title", "author": "The Author" } }'
       document = Document.new('add', '12345', 1, {:title => 'The Title', :author => 'The Author'})
-      assert_equal JSON.parse(expected_SDF).to_json, JSON.parse(document.to_SDF).to_json
-      Inquisitio.config.api_version = nil
+      assert_equal JSON.parse(expected_SDF).to_json, JSON.parse(document.to_sdf).to_json
     end
 
     def test_should_ignore_null_field_values_when_creating_SDF_json
-      expected_SDF = '{ "type": "add", "id": "12345", "version": 1, "lang": "en", "fields": { "title": "The Title" } }'
+      expected_SDF = '{ "type": "add", "id": "12345", "fields": { "title": "The Title" } }'
       fields = {:title => 'The Title', :author => nil}
       document = Document.new('add', '12345', 1, fields)
-      assert_equal JSON.parse(expected_SDF).to_json, JSON.parse(document.to_SDF).to_json
+      assert_equal JSON.parse(expected_SDF).to_json, JSON.parse(document.to_sdf).to_json
     end
   end
 end

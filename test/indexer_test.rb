@@ -1,12 +1,12 @@
 require File.expand_path('../test_helper', __FILE__)
 
 module Inquisitio
-  class IndexerFor2011Test < Minitest::Test
+  class IndexerTest < Minitest::Test
     def setup
       @document_endpoint = 'http://my.document-endpoint.com'
       Inquisitio.config.document_endpoint = @document_endpoint
     #def initialize(type, id, version, fields)
-      @documents = [Document.new("add", "12345", 1, {})]
+      @documents = [Document.new('add', '12345', 1, {})]
       
       Inquisitio.config.dry_run = false      
     end
@@ -21,36 +21,29 @@ module Inquisitio
     end
 
     def test_indexer_should_raise_exception_if_documents_nil
-      assert_raises(InquisitioError, "Documents is nil") do
+      assert_raises(InquisitioError, 'Documents is nil') do
         Indexer.index(nil)
       end
     end
 
     def test_indexer_should_raise_exception_if_documents_empty
-      assert_raises(InquisitioError, "Documents is empty") do
+      assert_raises(InquisitioError, 'Documents is empty') do
         Indexer.index([])
       end
     end
 
     def test_create_correct_index_url
       indexer = Indexer.new(@documents)
-      assert_equal 'http://my.document-endpoint.com/2011-02-01/documents/batch', indexer.send(:batch_index_url)
-    end
-
-    def test_create_correct_index_url_2013
-      Inquisitio.config.api_version = '2013-01-01'
-      indexer = Indexer.new(@documents)
       assert_equal 'http://my.document-endpoint.com/2013-01-01/documents/batch', indexer.send(:batch_index_url)
-      Inquisitio.config.api_version = nil
     end
 
     def test_create_correct_body
       doc1 = mock()
-      doc1.expects(:to_SDF).returns("sdf1")
+      doc1.expects(:to_sdf).returns('sdf1')
       doc2 = mock()
-      doc2.expects(:to_SDF).returns("sdf2")
+      doc2.expects(:to_sdf).returns('sdf2')
       doc3 = mock()
-      doc3.expects(:to_SDF).returns("sdf3")
+      doc3.expects(:to_sdf).returns('sdf3')
 
       documents = [ doc1, doc2, doc3 ]
       indexer = Indexer.new(documents)
@@ -64,7 +57,7 @@ module Inquisitio
 
       indexer = Indexer.new(@documents)
 
-      assert_raises(InquisitioError, "Indexer failed with status code 500") do
+      assert_raises(InquisitioError, 'Indexer failed with status code 500') do
         indexer.index
       end
     end

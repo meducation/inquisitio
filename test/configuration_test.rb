@@ -4,7 +4,7 @@ module Inquisitio
   class ConfigurationTest < Minitest::Test
 
     def setup
-      Inquisitio.instance_variable_set("@config", nil)
+      Inquisitio.instance_variable_set('@config', nil)
     end
 
     def test_obtaining_singletion
@@ -12,7 +12,7 @@ module Inquisitio
     end
 
     def test_block_syntax
-      test_search_endpoint = "foobar-123-endpoint"
+      test_search_endpoint = 'foobar-123-endpoint'
       Inquisitio.config do |config|
         config.search_endpoint = test_search_endpoint
       end
@@ -20,12 +20,11 @@ module Inquisitio
     end
 
     def test_api_version
-      assert_equal '2011-02-01', Inquisitio.config.api_version
+      assert_equal '2013-01-01', Inquisitio.config.api_version
       Inquisitio.config.api_version = '2013-01-01'
       assert_equal '2013-01-01', Inquisitio.config.api_version
       Inquisitio.config.api_version = nil
-      assert_equal '2011-02-01', Inquisitio.config.api_version
-      Inquisitio.config.api_version = '2011-02-01'
+      assert_equal '2013-01-01', Inquisitio.config.api_version
     end
 
     def test_search_endpoint
@@ -33,7 +32,7 @@ module Inquisitio
     end
 
     def test_search_endpoint
-      search_endpoint = "test-search-endpoint"
+      search_endpoint = 'test-search-endpoint'
       Inquisitio.config.search_endpoint = search_endpoint
       assert_equal search_endpoint, Inquisitio.config.search_endpoint
     end
@@ -45,7 +44,7 @@ module Inquisitio
     end
 
     def test_document_endpoint
-      document_endpoint = "test-document-endpoint"
+      document_endpoint = 'test-document-endpoint'
       Inquisitio.config.document_endpoint = document_endpoint
       assert_equal document_endpoint, Inquisitio.config.document_endpoint
     end
@@ -57,7 +56,7 @@ module Inquisitio
     end
 
     def test_default_search_size
-      default_search_size = "test-default_search_size"
+      default_search_size = 'test-default_search_size'
       Inquisitio.config.default_search_size = default_search_size
       assert_equal default_search_size, Inquisitio.config.default_search_size
     end

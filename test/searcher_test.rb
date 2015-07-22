@@ -31,9 +31,17 @@ module Inquisitio
       @start = 5
       @found = 8
 
-      @body = <<-EOS
-      {"rank":"-text_relevance","match-expr":"(label 'star wars')","hits":{"found":#{@found},"start":#{@start},"hit":#{@expected_results.to_json}},"info":{"rid":"9d3b24b0e3399866dd8d376a7b1e0f6e930d55830b33a474bfac11146e9ca1b3b8adf0141a93ecee","time-ms":3,"cpu-time-ms":0}}
-      EOS
+      @body = {
+          'status' => {
+              'rid' => '9d3b24b0e3399866dd8d376a7b1e0f6e930d55830b33a474bfac11146e9ca1b3b8adf0141a93ecee',
+              'time-ms' => 3
+          },
+          'hits' => {
+              'found' => @found,
+              'start' => @start,
+              'hit' => @expected_results,
+          }
+      }.to_json
 
       Excon.defaults[:mock] = true
       Excon.stub({}, {body: @body, status: 200})
@@ -69,31 +77,31 @@ module Inquisitio
       refute_same searcher1, searcher2
     end
 
-    def test_where_sets_filters
-      filters = {genre: 'Animation'}
-      searcher = Searcher.where(filters)
-      assert_equal({genre: ['Animation']}, searcher.params[:filters])
+    def test_where_sets_named_fields
+      named_fields = {genre: 'Animation'}
+      searcher = Searcher.where(named_fields)
+      assert_equal({genre: ['Animation']}, searcher.params[:named_fields])
     end
 
-    def test_where_merges_filters
-      filters1 = {genre: 'Animation'}
-      filters2 = {foobar: 'Cat'}
-      searcher = Searcher.where(filters1).where(filters2)
-      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:filters])
+    def test_where_merges_named_fields
+      named_fields1 = {genre: 'Animation'}
+      named_fields2 = {foobar: 'Cat'}
+      searcher = Searcher.where(named_fields1).where(named_fields2)
+      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:named_fields])
     end
 
     def test_symbolizes_where_keys
-      filters1 = {'genre' => 'Animation'}
-      filters2 = {'foobar' => 'Cat'}
-      searcher = Searcher.where(filters1).where(filters2)
-      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:filters])
+      named_fields1 = {'genre' => 'Animation'}
+      named_fields2 = {'foobar' => 'Cat'}
+      searcher = Searcher.where(named_fields1).where(named_fields2)
+      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:named_fields])
     end
 
-    def test_where_merges_filters_with_same_key
-      filters1 = {genre: 'Animation'}
-      filters2 = {genre: 'Action'}
-      searcher = Searcher.where(filters1).where(filters2)
-      assert_equal({genre: %w(Animation Action)}, searcher.params[:filters])
+    def test_where_merges_named_fields_with_same_key
+      named_fields1 = {genre: 'Animation'}
+      named_fields2 = {genre: 'Action'}
+      searcher = Searcher.where(named_fields1).where(named_fields2)
+      assert_equal({genre: %w(Animation Action)}, searcher.params[:named_fields])
     end
 
     def test_where_gets_correct_url
@@ -102,14 +110,7 @@ module Inquisitio
       assert(search_url.include?('q=Star+Wars'), "Search url should include search term: #{search_url}")
     end
 
-    def test_where_gets_correct_url_with_filters_for_2011
-      searcher = Searcher.where(title: 'Star Wars')
-      search_url = searcher.send(:search_url)
-      assert(search_url.include?('bq=%28and+%28or+title%3A%27Star+Wars%27%29%29'), "Search url should include query: #{search_url}")
-    end
-
-    def test_where_gets_correct_url_with_filters_for_2013
-      Inquisitio.config.api_version = '2013-01-01'
+    def test_where_gets_correct_url_with_fields_in_search
       searcher = Searcher.where(title: 'Star Wars')
       search_url = searcher.send(:search_url)
       assert(search_url.include?('q=%28and+%28or+title%3A%27Star+Wars%27%29%29&q.parser=structured'), "Search url should include query: #{search_url}")
@@ -118,14 +119,14 @@ module Inquisitio
     def test_where_works_with_array_in_a_hash
       criteria = {thing: %w(foo bar)}
       searcher = Searcher.where(criteria)
-      assert_equal criteria, searcher.params[:filters]
+      assert_equal criteria, searcher.params[:named_fields]
     end
 
     def test_where_works_with_string_and_array
       str_criteria = 'Star Wars'
       hash_criteria = {thing: %w(foo bar)}
       searcher = Searcher.where(str_criteria).where(hash_criteria)
-      assert_equal hash_criteria, searcher.params[:filters]
+      assert_equal hash_criteria, searcher.params[:named_fields]
       assert_equal [str_criteria], searcher.params[:criteria]
     end
 
@@ -205,13 +206,7 @@ module Inquisitio
       assert searcher.params[:returns].include?('foobar')
     end
 
-    def test_returns_gets_correct_urlns_appends_variable_for_2011
-      searcher = Searcher.returns('foobar')
-      assert searcher.send(:search_url).include? '&return-fields=foobar'
-    end
-
-    def test_returns_gets_correct_urlns_appends_variable_for_2013
-      Inquisitio.config.api_version = '2013-01-01'
+    def test_returns_gets_correct_url_returns_appends_variable
       searcher = Searcher.returns('foobar')
       assert searcher.send(:search_url).include? '&return=foobar'
     end
@@ -221,14 +216,7 @@ module Inquisitio
       assert_equal %w(dog cat), searcher.params[:returns]
     end
 
-    def test_returns_with_array_gets_correct_url_for_2011
-      searcher = Searcher.returns('id', 'foobar')
-      search_url = searcher.send(:search_url)
-      assert(search_url.include?('&return-fields=id%2Cfoobar'), "Search url should include return fields: #{search_url}")
-    end
-
-    def test_returns_with_array_gets_correct_url_for_2013
-      Inquisitio.config.api_version = '2013-01-01'
+    def test_returns_with_array_gets_correct_url
       searcher = Searcher.returns('id', 'foobar')
       search_url = searcher.send(:search_url)
       assert(search_url.include?('&return=id%2Cfoobar'), "Search url should include return: #{search_url}")
@@ -237,21 +225,6 @@ module Inquisitio
     def test_returns_appends_variable
       searcher = Searcher.returns('id').returns('foobar')
       assert_equal %w(id foobar), searcher.params[:returns]
-    end
-
-    def test_with_saves_variable
-      searcher = Searcher.with(foo: 'bar')
-      assert_equal({foo: 'bar'}, searcher.params[:with])
-    end
-
-    def test_with_appends_to_variable
-      searcher = Searcher.with(foo: 'bar').with(cat: 'dog')
-      assert_equal({foo: 'bar', cat: 'dog'}, searcher.params[:with])
-    end
-
-    def test_with_gets_correct_url
-      searcher = Searcher.with(foo: 'bar').with(cat: 'dog')
-      assert searcher.send(:search_url).include? '&foo=bar&cat=dog'
     end
 
     def test_search_calls_search_url_builder
@@ -329,19 +302,11 @@ module Inquisitio
       2.times { searcher.search }
     end
 
-    def test_should_return_type_and_id_by_default_for_2011
-      searcher = Searcher.where('Star Wars')
-      assert_equal [], searcher.params[:returns]
-      search_url = searcher.send(:search_url)
-      assert(search_url.include?('&return-fields=type%2Cid'), "Search url should include return for type and id: #{search_url}")
-    end
-
-    def test_should_not_specify_return_by_default_for_2013
+    def test_should_not_specify_return_by_default
       Inquisitio.config.api_version = '2013-01-01'
       searcher = Searcher.where('Star Wars')
       assert_equal [], searcher.params[:returns]
       refute searcher.send(:search_url).include? '&return='
-      refute searcher.send(:search_url).include? '&return-fields='
     end
 
     def test_should_return_ids

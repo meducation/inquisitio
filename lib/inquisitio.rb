@@ -1,14 +1,13 @@
-require "inquisitio/version"
-require "inquisitio/inquisitio_error"
-require "inquisitio/logger"
-require "inquisitio/active_support"
-
-require "inquisitio/configuration"
-require "inquisitio/document"
-require "inquisitio/search_url_builder"
-require "inquisitio/searcher"
-require "inquisitio/results"
-require "inquisitio/indexer"
+require 'inquisitio/version'
+require 'inquisitio/inquisitio_error'
+require 'inquisitio/logger'
+require 'inquisitio/active_support'
+require 'inquisitio/configuration'
+require 'inquisitio/document'
+require 'inquisitio/search_url_builder'
+require 'inquisitio/searcher'
+require 'inquisitio/results'
+require 'inquisitio/indexer'
 
 module Inquisitio
 
@@ -69,13 +68,6 @@ module Inquisitio
   # @param query A string or array specifying the fields
   def self.returns(num)
     Searcher.returns(num)
-  end
-
-  # Specify any other fields you want to send as part of the request.
-  #
-  # @param query An array of fields.
-  def self.with(num)
-    Searcher.with(num)
   end
 
   # Index a batch of documents.
