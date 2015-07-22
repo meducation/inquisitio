@@ -11,8 +11,11 @@ module Inquisitio
 
     def initialize(params = nil)
       @params = params || {
-          criteria: [],
-          named_fields: {},
+          query_terms: [],
+          query_named_fields: {},
+          filter_query_terms: [],
+          filter_query_named_fields: {},
+          facets: {},
           per: 10,
           page: 1,
           returns: [],
@@ -20,7 +23,6 @@ module Inquisitio
           q_options: {},
           expressions: {}
       }
-      @failed_attempts = 0
 
       yield(self) if block_given?
     end
@@ -67,19 +69,42 @@ module Inquisitio
     def where(value)
       clone do |s|
         if value.is_a?(Array)
-          s.params[:criteria] += value
+          s.params[:query_terms] += value
         elsif value.is_a?(Hash)
           value.each do |k, v|
             k = k.to_sym
-            s.params[:named_fields][k] ||= []
+            s.params[:query_named_fields][k] ||= []
             if v.is_a?(Array)
-              s.params[:named_fields][k] = v
+              s.params[:query_named_fields][k] = v
             else
-              s.params[:named_fields][k] << v
+              s.params[:query_named_fields][k] << v
             end
           end
         else
-          s.params[:criteria] << value
+          s.params[:query_terms] << value
+        end
+      end
+    end
+
+    def filter(value)
+      clone do |s|
+        if value.nil?
+          s.params[:filter_query_terms] = []
+          s.params[:filter_query_named_fields] = {}
+        elsif value.is_a?(Array)
+          s.params[:filter_query_terms] += value
+        elsif value.is_a?(Hash)
+          value.each do |k, v|
+            k = k.to_sym
+            s.params[:filter_query_named_fields][k] ||= []
+            if v.is_a?(Array)
+              s.params[:filter_query_named_fields][k] = v
+            else
+              s.params[:filter_query_named_fields][k] << v
+            end
+          end
+        else
+          s.params[:filter_query_terms] << value
         end
       end
     end
@@ -87,6 +112,12 @@ module Inquisitio
     def options(value)
       clone do |s|
         s.params[:q_options] = value
+      end
+    end
+
+    def facets(value)
+      clone do |s|
+        s.params[:facets] = value
       end
     end
 
@@ -130,6 +161,10 @@ module Inquisitio
       end
     end
 
+    def result_facets
+      @result_facets ||= Facets.new(cloudsearch_body['facets'])
+    end
+
     # Proxy everything to the results so that this this class
     # transparently acts as an Array.
     def method_missing(name, *args, &block)
@@ -139,35 +174,41 @@ module Inquisitio
     private
 
     def results
-      return @results unless @results.nil?
+      @results ||= begin
+        Results.new(cloudsearch_body['hits']['hit'],
+                    params[:page],
+                    params[:per],
+                    cloudsearch_body['hits']['found'],
+                    cloudsearch_body['status']['time-ms'])
+      end
+    end
 
-      Inquisitio.config.logger.info("Performing search: #{search_url}")
-      response = Excon.get(search_url)
-      raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
-      body = JSON.parse(response.body)
-      time_ms = body['status']['time-ms']
-      @results = Results.new(body['hits']['hit'],
-                             params[:page],
-                             params[:per],
-                             body['hits']['found'],
-                             time_ms)
-    rescue => e
-      @failed_attempts += 1
-      Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
+    def cloudsearch_body
+      failed = 0
+      @cloudsearch_body ||= begin
+        Inquisitio.config.logger.info("Performing search: #{search_url}")
+        response = Excon.get(search_url)
+        raise InquisitioError.new("Search failed with status code: #{response.status} Message #{response.body}") unless response.status == 200
+        JSON.parse(response.body)
+      rescue => e
+        failed += 1
+        Inquisitio.config.logger.error("Exception Performing search: #{search_url} #{e}")
 
-      if @failed_attempts < Inquisitio.config.max_attempts
-        Inquisitio.config.logger.error("Retrying search #{@failed_attempts}/#{Inquisitio.config.max_attempts}")
-        results
-      else
-        raise InquisitioError.new('Exception performing search')
+        if failed < Inquisitio.config.max_attempts
+          Inquisitio.config.logger.error("Retrying search #{@failed_attempts}/#{Inquisitio.config.max_attempts}")
+          retry
+        else
+          raise InquisitioError.new('Exception performing search')
+        end
       end
     end
 
     def search_url
       @search_url ||= begin
         SearchUrlBuilder.build(
-            query: params[:criteria],
-            named_fields: params[:named_fields],
+            query: {terms: params[:query_terms], named_fields: params[:query_named_fields]},
+            filter_query: {terms: params[:filter_query_terms], named_fields: params[:filter_query_named_fields]},
+            facets: params[:facets],
             size: params[:per],
             start: params[:per] * (params[:page] - 1),
             sort: params[:sort],

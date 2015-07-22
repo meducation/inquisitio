@@ -41,7 +41,10 @@ module Inquisitio
     end
 
     def test_should_return_time_taken
-      body = "{\"status\": {\"rid\" : \"u9aP4eYo8gIK0csK\", \"time-ms\": 4}, \"hits\" : {\"#{@found}\": 33, \"#{@start}\": 0, \"hit\":#{@expected_results.to_json} }}"
+      body = {
+          'status' => {'rid' => 'u9aP4eYo8gIK0csK', 'time-ms' => 4},
+          'hits' => {'found' => 33, 'start' => 0, 'hit' => @expected_results}
+      }.to_json
       Excon.stubs.clear
       Excon.stub({}, {body: body, status: 200})
 

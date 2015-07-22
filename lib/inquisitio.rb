@@ -7,6 +7,7 @@ require 'inquisitio/document'
 require 'inquisitio/search_url_builder'
 require 'inquisitio/searcher'
 require 'inquisitio/results'
+require 'inquisitio/facets'
 require 'inquisitio/indexer'
 
 module Inquisitio

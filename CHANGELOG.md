@@ -1,3 +1,7 @@
+2.1.0 / 2015-07-22
+[FEATURE] Add support for filter queries (fq) as Searcher#filter
+[FEATURE] Add support for facets as Searcher#facets
+
 2.0.0 / 2015-07-21
 [FEATURE] Removed support for 2011-02-01 api
 

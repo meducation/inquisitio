@@ -55,20 +55,20 @@ module Inquisitio
     def test_where_sets_variable
       criteria = 'Star Wars'
       searcher = Searcher.where(criteria)
-      assert_equal [criteria], searcher.params[:criteria]
+      assert_equal [criteria], searcher.params[:query_terms]
     end
 
     def test_where_sets_variable_with_an_array
       criteria = %w(Star Wars)
       searcher = Searcher.where(criteria)
-      assert_equal criteria, searcher.params[:criteria]
+      assert_equal criteria, searcher.params[:query_terms]
     end
 
     def test_where_doesnt_mutate_searcher
       initial_criteria = 'star wars'
       searcher = Searcher.where(initial_criteria)
       searcher.where('Return of the Jedi')
-      assert_equal [initial_criteria], searcher.params[:criteria]
+      assert_equal [initial_criteria], searcher.params[:query_terms]
     end
 
     def test_where_returns_a_new_searcher
@@ -80,28 +80,28 @@ module Inquisitio
     def test_where_sets_named_fields
       named_fields = {genre: 'Animation'}
       searcher = Searcher.where(named_fields)
-      assert_equal({genre: ['Animation']}, searcher.params[:named_fields])
+      assert_equal({genre: ['Animation']}, searcher.params[:query_named_fields])
     end
 
     def test_where_merges_named_fields
       named_fields1 = {genre: 'Animation'}
       named_fields2 = {foobar: 'Cat'}
       searcher = Searcher.where(named_fields1).where(named_fields2)
-      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:named_fields])
+      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:query_named_fields])
     end
 
     def test_symbolizes_where_keys
       named_fields1 = {'genre' => 'Animation'}
       named_fields2 = {'foobar' => 'Cat'}
       searcher = Searcher.where(named_fields1).where(named_fields2)
-      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:named_fields])
+      assert_equal({genre: ['Animation'], foobar: ['Cat']}, searcher.params[:query_named_fields])
     end
 
     def test_where_merges_named_fields_with_same_key
       named_fields1 = {genre: 'Animation'}
       named_fields2 = {genre: 'Action'}
       searcher = Searcher.where(named_fields1).where(named_fields2)
-      assert_equal({genre: %w(Animation Action)}, searcher.params[:named_fields])
+      assert_equal({genre: %w(Animation Action)}, searcher.params[:query_named_fields])
     end
 
     def test_where_gets_correct_url
@@ -113,21 +113,22 @@ module Inquisitio
     def test_where_gets_correct_url_with_fields_in_search
       searcher = Searcher.where(title: 'Star Wars')
       search_url = searcher.send(:search_url)
-      assert(search_url.include?('q=%28and+%28or+title%3A%27Star+Wars%27%29%29&q.parser=structured'), "Search url should include query: #{search_url}")
+      assert /(\?|&)q=title%3A%27Star\+Wars%27(&|$)/ =~ search_url, "Search url should include query: #{search_url}"
+      assert /(\?|&)q.parser=structured(&|$)/ =~ search_url, "Search url should include parser: #{search_url}"
     end
 
     def test_where_works_with_array_in_a_hash
       criteria = {thing: %w(foo bar)}
       searcher = Searcher.where(criteria)
-      assert_equal criteria, searcher.params[:named_fields]
+      assert_equal criteria, searcher.params[:query_named_fields]
     end
 
     def test_where_works_with_string_and_array
       str_criteria = 'Star Wars'
       hash_criteria = {thing: %w(foo bar)}
       searcher = Searcher.where(str_criteria).where(hash_criteria)
-      assert_equal hash_criteria, searcher.params[:named_fields]
-      assert_equal [str_criteria], searcher.params[:criteria]
+      assert_equal hash_criteria, searcher.params[:query_named_fields]
+      assert_equal [str_criteria], searcher.params[:query_terms]
     end
 
     def test_per_doesnt_mutate_searcher
@@ -303,7 +304,6 @@ module Inquisitio
     end
 
     def test_should_not_specify_return_by_default
-      Inquisitio.config.api_version = '2013-01-01'
       searcher = Searcher.where('Star Wars')
       assert_equal [], searcher.params[:returns]
       refute searcher.send(:search_url).include? '&return='
@@ -405,17 +405,59 @@ module Inquisitio
     end
 
     def test_should_support_structured_parser
-      Inquisitio.config.api_version = '2013-01-01'
       searcher = Searcher.where('star wars').parser(:structured)
       search_url = searcher.send(:search_url)
       assert search_url =~ /(\?|&)q\.parser=structured(&|$)/, "search url should include q.parser parameter:\n#{search_url}"
     end
 
     def test_should_support_any_parser
-      Inquisitio.config.api_version = '2013-01-01'
       searcher = Searcher.where('star wars').parser(:foo_bar_baz)
       search_url = searcher.send(:search_url)
       assert search_url =~ /(\?|&)q\.parser=foo_bar_baz(&|$)/, "search url should include q.parser parameter:\n#{search_url}"
     end
+
+    def test_should_not_have_fq_if_no_filter
+      searcher = Searcher.where('star wars')
+      search_url = searcher.send(:search_url)
+      refute search_url =~ /(\?|&)fq=/, "search url should not include fq parameter:\n#{search_url}"
+    end
+
+    def test_should_take_a_filter_query
+      searcher = Searcher.where('star wars').filter('a new hope')
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)fq=a\+new\+hope(&|$)/, "search url should include fq parameter:\n#{search_url}"
+    end
+
+    def test_should_take_a_filter_query_with_fields
+      searcher = Searcher.where('star wars').filter(tags: 'anewhope')
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)fq=tags%3A%27anewhope%27(&|$)/, "search url should include fq parameter:\n#{search_url}"
+    end
+
+    def test_should_accept_empty_filter_to_reset_filters
+      searcher = Searcher.where('star wars').filter(tags: 'anewhope').filter(nil)
+      search_url = searcher.send(:search_url)
+      refute search_url =~ /(\?|&)fq=tags%3A%27anewhope%27(&|$)/, "search url should not include fq parameter:\n#{search_url}"
+    end
+
+    def test_should_tolerate_empty_filter
+      searcher = Searcher.where('star wars').filter(nil)
+      search_url = searcher.send(:search_url)
+      refute search_url =~ /(\?|&)fq=/, "search url should not include fq parameter:\n#{search_url}"
+    end
+
+    def test_should_take_a_facet
+      searcher = Searcher.where('star wars').facets(tags: {})
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)facet\.tags=%7B%7D(&|$)/, "search url should include facet.tags parameter:\n#{search_url}"
+    end
+
+    def test_should_take_facets
+      searcher = Searcher.where('star wars').facets(tags: {}, genre: {sort:'bucket', size:5})
+      search_url = searcher.send(:search_url)
+      assert search_url =~ /(\?|&)facet\.tags=%7B%7D(&|$)/, "search url should include facet.tags parameter:\n#{search_url}"
+      assert search_url =~ /(\?|&)facet\.genre=%7B%22sort%22%3A%22bucket%22%2C%22size%22%3A5%7D(&|$)/, "search url should include facet.genre parameter:\n#{search_url}"
+    end
+
   end
 end
