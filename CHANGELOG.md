@@ -1,3 +1,6 @@
+2.1.1 / 2015-07-23
+[BUGFIX] result_facets now returns an empty set in the event no facets were requested or returned
+
 2.1.0 / 2015-07-22
 [FEATURE] Add support for filter queries (fq) as Searcher#filter
 [FEATURE] Add support for facets as Searcher#facets

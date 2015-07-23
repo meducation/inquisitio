@@ -68,5 +68,18 @@ module Inquisitio
       assert_equal 2, facets[:rating][:buckets][1][:count]
     end
 
+    def test_should_return_empty_if_no_facets_requested
+      body = {
+          'status' => {'rid' => 'u9aP4eYo8gIK0csK', 'time-ms' => 4},
+          'hits' => {'found' => 1, 'start' => 0, 'hit' => [{'data' => {'id' => ['20'], 'title' => ['Foobar2'], 'type' => ['Module_Dog']}}], }
+      }.to_json
+      Excon.stubs.clear
+      Excon.stub({}, {body: body, status: 200})
+
+      searcher = Searcher.where('star_wars')
+      facets = searcher.result_facets
+      assert_equal [], facets.fields
+    end
+
   end
 end

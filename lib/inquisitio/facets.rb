@@ -3,7 +3,7 @@ module Inquisitio
     extend Forwardable
 
     def initialize(facets)
-      @facets = JSON.parse(facets.to_json, symbolize_names: true)
+      @facets = facets.nil? ? {} : JSON.parse(facets.to_json, symbolize_names: true)
     end
 
     def fields
