@@ -86,6 +86,12 @@ module Inquisitio
       assert /(&|\?)fq=%28and\+%27A\+New\+Hope%27\+%28or\+genre%3A%27Animation%27\+genre%3A%27Action%27%29\+%29(&|$)/ =~ url, "should have filter query in url: #{url}"
     end
 
+    def test_create_search_url_with_multiple_named_fields_in_filter_query
+      url = SearchUrlBuilder.build(query: {terms: ['Star Wars']}, filter_query: {terms: [], named_fields: {genre: %w(Animation Action), foo: 'bar'}})
+      assert /(&|\?)q=Star\+Wars(&|$)/ =~ url, "should have query in url: #{url}"
+      assert_match /(&|\?)fq=%28and\+%28or\+genre%3A%27Animation%27\+genre%3A%27Action%27%29\+foo%3A%27bar%27\+%29(&|$)/, url
+    end
+
     def test_create_search_url_with_query_options
       url = SearchUrlBuilder.build(query: {terms: ['Star Wars']}, q_options: {fields: %w(title^2.0 plot^0.5)})
       expected_url = 'http://my.search-endpoint.com/2013-01-01/search?q=Star+Wars&q.options=%7B%22fields%22%3A%5B%22title%5E2.0%22%2C%22plot%5E0.5%22%5D%7D&size=10'
