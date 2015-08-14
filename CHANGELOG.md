@@ -1,3 +1,6 @@
+2.1.3 / 2015-07-23
+[BUGFIX] Support multiple filters in filter queries
+
 2.1.2 / 2015-07-23
 [BUGFIX] Make results_facets into a hash so we can use a full range of methods
 

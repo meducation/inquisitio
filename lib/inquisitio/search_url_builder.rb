@@ -62,6 +62,7 @@ module Inquisitio
 
       return query_blocks.join(' ') if named_fields.empty?
 
+      query_blocks << '(and' if named_fields.size > 1
       query_blocks += named_fields.map do |key, value|
         raise InquisitioError.new('Named field values must be strings or arrays.') unless value.is_a?(String) || value.is_a?(Array)
         block = "#{dequote(key)}:'#{dequote(value)}'" if value.is_a?(String)
@@ -69,6 +70,7 @@ module Inquisitio
         block = "(or #{value.map { |v| "#{dequote(key)}:'#{dequote(v)}'" }.join(' ')})" if value.is_a?(Array) && value.size > 1
         block
       end
+      query_blocks << ')' if named_fields.size > 1
 
       query_blocks << ')' unless terms.empty? || named_fields.empty?
       query_blocks.join(' ')
