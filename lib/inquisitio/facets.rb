@@ -1,16 +1,14 @@
 module Inquisitio
-  class Facets
-    extend Forwardable
+  class Facets < Hash
 
     def initialize(facets)
-      @facets = facets.nil? ? {} : JSON.parse(facets.to_json, symbolize_names: true)
+      super
+      hash = facets.nil? ? {} : JSON.parse(facets.to_json, symbolize_names: true)
+      merge!(hash)
     end
 
     def fields
-      @facets.keys
+      keys
     end
-
-    def_delegator :@facets, :[]
-
   end
 end

@@ -1,3 +1,6 @@
+2.1.2 / 2015-07-23
+[BUGFIX] Make results_facets into a hash so we can use a full range of methods
+
 2.1.1 / 2015-07-23
 [BUGFIX] result_facets now returns an empty set in the event no facets were requested or returned
 
